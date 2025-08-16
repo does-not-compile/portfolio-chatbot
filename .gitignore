@@ -15,7 +15,7 @@ wheels/
 # terraform files
 .tfvars
 .terraform
-.hcl
+*.terraform.lock.hcl
 
 *.pem
 *.csv
