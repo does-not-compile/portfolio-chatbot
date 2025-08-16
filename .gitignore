@@ -12,5 +12,11 @@ wheels/
 # env files
 .env
 
+# terraform files
+.tfvars
 
+*.pem
+*.csv
+
+# macOS stuff
 .DS_Store
