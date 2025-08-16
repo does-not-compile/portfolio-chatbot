@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.micro" # free-tier eligible, cheapest
+  default     = "t3.small" # 2 GB RAM, as you wanted
 }
 
 variable "key_name" {
@@ -15,20 +15,13 @@ variable "key_name" {
   type        = string
 }
 
-variable "db_user" {
-  description = "Database username"
+variable "public_key_path" {
+  description = "Path to your local SSH public key"
   type        = string
-  default     = "chatuser"
 }
 
-variable "db_pass" {
-  description = "Database password"
+variable "ami_id" {
+  description = "Optional: manually set an AMI ID. Leave empty to auto-select Ubuntu 24.04"
   type        = string
-  sensitive   = true
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = "chatdb"
+  default     = ""
 }
