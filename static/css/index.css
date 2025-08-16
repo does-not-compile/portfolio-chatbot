@@ -1,0 +1,83 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: url("../img/loss_himmelblau.svg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+}
+
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5rem 3rem;
+  color: #121212;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  border-radius: 5px;
+  min-height: 65%;
+}
+
+.text-input-userId {
+  position: relative;
+  gap: 5px;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid rgb(41, 83, 251);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.seg-4 {
+  width: 6ch;
+}
+
+.seg-8 {
+  width: 10ch;
+}
+
+.seg-12 {
+  width: 14ch;
+}
+
+.dash {
+  justify-content: center;
+  align-items: center;
+  height: 2.4rem;
+  line-height: 1;
+  font-size: 1.2rem;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+
+.btn-submit,
+.a-submit {
+  color: #fff;
+  background-color: rgb(41, 83, 251);
+  margin: 2rem 0.5rem;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.a-submit {
+  background-color: transparent;
+  color: rgb(41, 83, 251);
+  border: 1px solid rgb(41, 83, 251);
+}
+
+.connects {
+  height: 2rem;
+}/*# sourceMappingURL=index.css.map */

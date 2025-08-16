@@ -1,0 +1,88 @@
+@import "vars.scss";
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: url("../img/loss_himmelblau.svg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: $font-family-base;
+    font-weight: $font-weight-regular;
+}
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5rem 3rem;
+    color: $color-text-dark;
+    font-family: $font-family-titles;
+    font-size: 1rem;
+    border-radius: 5px;
+    min-height: 65%;
+    //box-shadow: 0 2px 10px $color-bg-light;
+}
+
+.text-input-userId {
+    position: relative;
+    gap: 5px;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid $color-primary;
+    font-family: $font-family-code;
+}
+
+.seg-4 {
+    width: 6ch;
+}
+
+.seg-8 {
+    width: 10ch;
+}
+
+.seg-12 {
+    width: 14ch;
+}
+
+.dash {
+    //display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2.4rem;
+    line-height: 1;
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+.btn-submit,
+.a-submit {
+    color: $color-bg-light;
+    background-color: $color-primary;
+    margin: 2rem 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.a-submit {
+    background-color: transparent;
+    color: $color-primary;
+    border: 1px solid $color-primary;
+}
+
+.connects {
+    height: 2rem;
+}
+
+
+//12345678-1234-1234-1234-123456789012

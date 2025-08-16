@@ -1,0 +1,40 @@
+.dot-typing {
+  display: inline-flex;
+  align-items: center;
+  width: -moz-fit-content;
+  width: fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  margin: 0;
+  padding: 0;
+  border-radius: 1rem;
+}
+.dot-typing span {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: rgb(41, 83, 251);
+  border-radius: 50%;
+  display: inline-block;
+  animation: bounce 1.2s infinite ease-in-out both;
+}
+.dot-typing span:nth-child(1) {
+  animation-delay: 0s;
+}
+.dot-typing span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dot-typing span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}/*# sourceMappingURL=loading.css.map */

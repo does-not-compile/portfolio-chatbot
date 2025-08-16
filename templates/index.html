@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://kit.fontawesome.com/a051f921ad.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', path='js/login.js')}}" defer></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/main.css')}} " />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css')}} " />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/loading.css')}} " />
+</head>
+
+<body>
+    <div class="col fh fw center" id="login">
+        <form action="/login" method="POST" id="loginForm" class="blurry" novalidate>
+            <h1>LOGIN</h1>
+            <p>
+                Please paste your User ID
+            </p>
+            <div class="uuid-inputs" id="uuidInputs">
+                <input id="seg0" maxlength="8" pattern="[0-9a-fA-F]+" autocomplete="off" spellcheck="false"
+                    aria-label="user id part 1" class="text-input-userId seg-8">
+                <span class="dash">-</span>
+                <input id="seg1" maxlength="4" pattern="[0-9a-fA-F]+" autocomplete="off" spellcheck="false"
+                    aria-label="user id part 2" class="text-input-userId seg-4">
+                <span class="dash">-</span>
+                <input id="seg2" maxlength="4" pattern="[0-9a-fA-F]+" autocomplete="off" spellcheck="false"
+                    aria-label="user id part 3" class="text-input-userId seg-4">
+                <span class="dash">-</span>
+                <input id="seg3" maxlength="4" pattern="[0-9a-fA-F]+" autocomplete="off" spellcheck="false"
+                    aria-label="user id part 4" class="text-input-userId seg-4">
+                <span class="dash">-</span>
+                <input id="seg4" maxlength="12" pattern="[0-9a-fA-F]+" autocomplete="off" spellcheck="false"
+                    aria-label="user id part 5" class="text-input-userId seg-12">
+            </div>
+            <input type="text" name="userId" id="userId" hidden>
+            <div class="row">
+                <button type="submit" class="btn-submit">Let's Chat!</button>
+                <a href="no-id" class="a-submit">I don't have an ID</a>
+            </div>
+            <div class="connects" data-theme="light">
+                <a href="mailto:sebastian.nagel1@gmx.de" class="fa-solid fa-envelope"></a>
+                <a href="https://www.linkedin.com/in/sebastiannagel1991/" class="fa-brands fa-linkedin"
+                    target="_blank"></a>
+                <a href="https://www.xing.com/profile/Sebastian_Nagel098550/web_profiles" class="fa-brands fa-xing"
+                    target="_blank"></a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
