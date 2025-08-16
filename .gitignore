@@ -14,9 +14,12 @@ wheels/
 
 # terraform files
 .tfvars
+.terraform
+*.terraform.lock.hcl
 
 *.pem
 *.csv
+infra/terraform-aws/.terraform/
 
 # macOS stuff
 .DS_Store
