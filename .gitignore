@@ -18,6 +18,7 @@ wheels/
 *.terraform.lock.hcl
 
 *.pem
+*.pub
 *.csv
 infra/terraform-aws/.terraform/
 
