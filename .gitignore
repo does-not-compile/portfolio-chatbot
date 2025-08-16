@@ -12,5 +12,5 @@ wheels/
 # env files
 .env
 
-
+# macOS stuff
 .DS_Store
