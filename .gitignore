@@ -15,8 +15,8 @@ wheels/
 # terraform files
 .tfvars
 
-.pem
-.csv
+*.pem
+*.csv
 
 # macOS stuff
 .DS_Store
