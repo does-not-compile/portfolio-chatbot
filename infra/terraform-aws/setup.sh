@@ -52,7 +52,7 @@ OPENAI_API_KEY=$OPENAI_API_KEY
 EOF
 
 cd "$APP_DIR/app"
-docker-compose up --build -d
+sudo docker-compose up --build -d
 
 # --- Configure Nginx ---
 NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
@@ -81,4 +81,5 @@ sudo nginx -t && sudo systemctl reload nginx
 sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" || true
 
 # --- Add cron job for cert renewal ---
-(crontab -l 2>/dev/null; echo "0 0,12 * * * certbot renew --quiet && systemctl reload nginx") | crontab -
+sudo crontab -l 2>/dev/null | { cat; echo "0 0,12 * * * certbot renew --quiet && systemctl reload nginx"; } | sudo crontab -
+
