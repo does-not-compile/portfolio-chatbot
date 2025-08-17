@@ -5,6 +5,8 @@ services:
     image: mariadb:11
     container_name: mariadb
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
       MARIADB_DATABASE: ${DB_NAME}
@@ -21,20 +23,18 @@ services:
       retries: 10
 
   fastapi:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: fastapi-app
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
       DB_HOST: mariadb
       DB_PORT: 3306
-      DB_NAME: ${DB_NAME}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
-      - "80:8000"
+      - "8000:8000"
     depends_on:
       mariadb:
         condition: service_healthy
