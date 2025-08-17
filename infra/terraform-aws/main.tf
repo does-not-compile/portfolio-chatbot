@@ -66,12 +66,12 @@ resource "aws_instance" "chat_app" {
   key_name      = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.chat_sg.id]
   iam_instance_profile  = aws_iam_instance_profile.chat_profile.name
-  user_data = templatefile("${path.module}/user_data.sh.tpl", { region = var.aws_region })
+  # user_data = templatefile("${path.module}/user_data.sh.tpl", { region = var.aws_region })
 
   tags = {
     Name = "chat-app-server"
   }
-}
+} 
 
 # Elastic IP (static)
 resource "aws_eip" "chat_app_eip" {
