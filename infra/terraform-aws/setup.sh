@@ -3,7 +3,7 @@ set -euo pipefail
 
 REGION="eu-central-1"
 APP_DIR="$HOME/app"
-ENV_FILE="$APP_DIR/.env"
+ENV_FILE="$APP_DIR/app/.env"
 DOMAIN="chat.snagel.io"
 EMAIL="sebastian.nagel1@gmx.com"
 
@@ -38,8 +38,11 @@ done
 # --- Export variables for Docker and shell ---
 export DB_ROOT_PASS DB_PASS DB_USER DB_NAME OPENAI_API_KEY
 
+# --- Deploy app ---
+rm -rf "$APP_DIR"
+git clone https://github.com/does-not-compile/portfolio-chatbot.git "$APP_DIR"
+
 # --- Write .env file ---
-mkdir -p "$APP_DIR"
 cat > "$ENV_FILE" <<EOF
 DB_ROOT_PASS=$DB_ROOT_PASS
 DB_PASS=$DB_PASS
@@ -48,9 +51,6 @@ DB_NAME=$DB_NAME
 OPENAI_API_KEY=$OPENAI_API_KEY
 EOF
 
-# --- Deploy app ---
-rm -rf "$APP_DIR"
-git clone https://github.com/does-not-compile/portfolio-chatbot.git "$APP_DIR"
 cd "$APP_DIR/app"
 docker-compose up --build -d
 
