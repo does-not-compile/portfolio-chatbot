@@ -21,7 +21,9 @@ services:
       retries: 10
 
   fastapi:
-    image: ${DOCKER_IMAGE:-myapp:latest}
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: fastapi-app
     restart: unless-stopped
     environment:
