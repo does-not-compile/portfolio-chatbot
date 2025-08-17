@@ -13,14 +13,18 @@ wheels/
 .env
 
 # terraform files
+infra/terraform-aws/.terraform/
 .tfvars
 .terraform
-*.terraform.lock.hcl
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
+terraform.tfstate
+terraform.tfstate.backup
 
+# keys and secrets
 *.pem
 *.pub
 *.csv
-infra/terraform-aws/.terraform/
 
 # macOS stuff
 .DS_Store
