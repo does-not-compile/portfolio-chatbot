@@ -16,7 +16,6 @@ RUN pip install --upgrade pip \
 COPY ./src ./src
 COPY ./templates ./templates
 COPY ./static ./static
-COPY ./firewall ./firewall
 
 EXPOSE 8000
 
