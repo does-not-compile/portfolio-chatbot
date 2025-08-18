@@ -40,7 +40,7 @@ services:
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000
 
   nginx-proxy:
-    image: jwilder/nginx-proxy
+    image: jwilder/nginx-proxy:latest
     container_name: nginx-proxy
     restart: unless-stopped
     ports:
@@ -48,21 +48,29 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - nginx_certs:/etc/nginx/certs
-      - nginx_vhost:/etc/nginx/vhost.d
-      - nginx_html:/usr/share/nginx/html
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/vhost.d:/etc/nginx/vhost.d
+      - ./nginx/html:/usr/share/nginx/html
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
 
   letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
+    image: jrcs/letsencrypt-nginx-proxy-companion:latest
     container_name: letsencrypt
     restart: unless-stopped
     depends_on:
       - nginx-proxy
+    environment:
+      NGINX_PROXY_CONTAINER: nginx-proxy
+      ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory
+    volumes_from:
+      - nginx-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - nginx_certs:/etc/nginx/certs:rw
-      - nginx_vhost:/etc/nginx/vhost.d:rw
-      - nginx_html:/usr/share/nginx/html:rw
+      - ./nginx/certs:/etc/nginx/certs:rw
+      - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
+      - ./nginx/html:/usr/share/nginx/html:rw
+
 
 volumes:
   mariadb_data:
