@@ -75,6 +75,9 @@ resource "aws_instance" "chat_app" {
   vpc_security_group_ids = [aws_security_group.chat_sg.id]
   iam_instance_profile  = aws_iam_instance_profile.chat_profile.name
 
+  # Ensure instance gets a public IP
+  associate_public_ip_address = true
+
   tags = {
     Name = "chat-app-server"
   }
@@ -94,7 +97,7 @@ resource "aws_instance" "chat_app" {
   provisioner "remote-exec" {
     inline = [
       "chmod +x ~/setup.sh",
-      "bash setup.sh"
+      "bash ~/setup.sh"
     ]
   }
 }
@@ -102,4 +105,6 @@ resource "aws_instance" "chat_app" {
 # Elastic IP (static)
 resource "aws_eip" "chat_app_eip" {
   instance = aws_instance.chat_app.id
+  # Ensure the EIP is in the same VPC (for default VPC, optional)
+  vpc = true
 }
