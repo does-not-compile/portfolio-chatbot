@@ -12,8 +12,6 @@ services:
       MARIADB_DATABASE: ${DB_NAME}
       MARIADB_USER: ${DB_USER}
       MARIADB_PASSWORD: ${DB_PASS}
-    ports:
-      - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
     healthcheck:
@@ -31,14 +29,43 @@ services:
     env_file:
       - .env
     environment:
+      VIRTUAL_HOST: chat.snagel.io
+      LETSENCRYPT_HOST: chat.snagel.io
+      LETSENCRYPT_EMAIL: sebastian.nagel1@gmx.com
       DB_HOST: mariadb
       DB_PORT: 3306
-    ports:
-      - "8000:8000"
     depends_on:
       mariadb:
         condition: service_healthy
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000
 
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - nginx_certs:/etc/nginx/certs
+      - nginx_vhost:/etc/nginx/vhost.d
+      - nginx_html:/usr/share/nginx/html
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt
+    restart: unless-stopped
+    depends_on:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nginx_certs:/etc/nginx/certs:rw
+      - nginx_vhost:/etc/nginx/vhost.d:rw
+      - nginx_html:/usr/share/nginx/html:rw
+
 volumes:
   mariadb_data:
+  nginx_certs:
+  nginx_vhost:
+  nginx_html:
