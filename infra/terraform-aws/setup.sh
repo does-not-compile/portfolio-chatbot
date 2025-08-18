@@ -56,11 +56,23 @@ sudo docker-compose up --build -d
 
 # --- Configure Nginx ---
 NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
+WEBROOT="/var/www/certbot"
+
+# Create webroot dir for ACME challenges
+sudo mkdir -p "$WEBROOT"
+sudo chown -R www-data:www-data "$WEBROOT"
+
 sudo tee "$NGINX_CONF" > /dev/null <<EOF
 server {
     listen 80;
     server_name $DOMAIN;
 
+    # Serve ACME challenge files
+    location /.well-known/acme-challenge/ {
+        root $WEBROOT;
+    }
+
+    # Proxy all other traffic to app
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
@@ -77,9 +89,37 @@ sudo ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 
-# --- Enable HTTPS with Certbot ---
-sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL" || true
+# --- Issue cert via webroot ---
+sudo certbot certonly --webroot -w "$WEBROOT" -d "$DOMAIN" --non-interactive --agree-tos -m "$EMAIL"
+
+# --- Update Nginx to use SSL ---
+sudo tee "$NGINX_CONF" > /dev/null <<EOF
+server {
+    listen 80;
+    server_name $DOMAIN;
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name $DOMAIN;
+
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+}
+EOF
+
+sudo nginx -t && sudo systemctl reload nginx
 
 # --- Add cron job for cert renewal ---
-sudo crontab -l 2>/dev/null | { cat; echo "0 0,12 * * * certbot renew --quiet && systemctl reload nginx"; } | sudo crontab -
-
+(crontab -l 2>/dev/null; echo "0 0,12 * * * certbot renew --quiet && systemctl reload nginx") | crontab -
