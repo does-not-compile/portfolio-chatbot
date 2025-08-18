@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from sqlalchemy.orm import Session
 from openai import OpenAI
 from src.db import engine, get_db, SessionLocal
@@ -12,6 +13,9 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
 import logging
+
+
+app = FastAPI()
 
 logger = logging.getLogger("chat_stream")
 load_dotenv()
@@ -26,6 +30,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+app.add_middleware(
+    TrustedHostMiddleware, allowed_hosts=["chat.snagel.io", "*.chat.snagel.io"]
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
