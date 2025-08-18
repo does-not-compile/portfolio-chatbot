@@ -106,5 +106,5 @@ resource "aws_instance" "chat_app" {
 resource "aws_eip" "chat_app_eip" {
   instance = aws_instance.chat_app.id
   # Ensure the EIP is in the same VPC (for default VPC, optional)
-  vpc = true
+  domain = "vpc"
 }
