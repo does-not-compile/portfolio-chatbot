@@ -30,6 +30,7 @@ services:
       - .env
     environment:
       VIRTUAL_HOST: chat.snagel.io
+      VIRTUAL_PORT: 8000   # important for nginx-proxy
       LETSENCRYPT_HOST: chat.snagel.io
       LETSENCRYPT_EMAIL: sebastian.nagel1@gmx.com
       DB_HOST: mariadb
@@ -38,7 +39,10 @@ services:
       mariadb:
         condition: service_healthy
     command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
-
+    networks:
+      - proxy
+      - default
+  
   nginx-proxy:
     image: jwilder/nginx-proxy:latest
     container_name: nginx-proxy
@@ -53,6 +57,8 @@ services:
       - ./nginx/html:/usr/share/nginx/html
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    networks:
+      - proxy
 
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion:latest
@@ -70,10 +76,16 @@ services:
       - ./nginx/certs:/etc/nginx/certs:rw
       - ./nginx/vhost.d:/etc/nginx/vhost.d:rw
       - ./nginx/html:/usr/share/nginx/html:rw
-
+    networks:
+      - proxy
 
 volumes:
   mariadb_data:
   nginx_certs:
   nginx_vhost:
   nginx_html:
+
+networks:
+  proxy:
+    external: false
+    driver: bridge
