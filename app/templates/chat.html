@@ -36,8 +36,10 @@
             {% endfor %}
         </div>
         <div id="input-wrapper">
-            <textarea id="input" placeholder="Ask me anything..." rows="1"></textarea>
-            <button onclick="sendMessage()" id="send-btn"></button>
+            <div class="input" id="input">
+                <textarea id="input-text" placeholder="Ask me anything..." rows="1"></textarea>
+                <button onclick="sendMessage()" id="send-btn"></button>
+            </div>
         </div>
     </div>
 </body>

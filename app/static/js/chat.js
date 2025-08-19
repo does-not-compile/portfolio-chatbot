@@ -1,6 +1,7 @@
 // chat.js
 const chatEl = document.getElementById("chat");
-const inputEl = document.getElementById("input");
+const inputWrapper = document.getElementById("input");
+const inputEl = document.getElementById("input-text");
 const sendBtn = document.getElementById("send-btn");
 const urlParams = new URLSearchParams(window.location.search);
 const SESSION_ID = urlParams.get("sessionId");
@@ -18,10 +19,20 @@ if (!SESSION_ID) {
 // Scroll to bottom if there's already history
 chatEl.scrollTop = chatEl.scrollHeight;
 
-// Auto-grow input textarea
+// Auto-grow input inputEl
 inputEl.addEventListener("input", () => {
   inputEl.style.height = "auto";
   inputEl.style.height = inputEl.scrollHeight + "px";
+
+  if (inputEl.scrollHeight > 48) {
+    // ≈ 3rem min-height
+    inputWrapper.classList.add("expanded");
+  } else {
+    inputWrapper.classList.remove("expanded");
+  }
+
+  // trigger chat to shrink
+  chatEl.style.flex = "1 1 auto";
 });
 
 // Auto-send on Enter (Shift+Enter for newline)
