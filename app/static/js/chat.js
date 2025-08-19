@@ -1,3 +1,4 @@
+// chat.js
 const chatEl = document.getElementById("chat");
 const inputEl = document.getElementById("input");
 const sendBtn = document.getElementById("send-btn");
@@ -5,10 +6,11 @@ const urlParams = new URLSearchParams(window.location.search);
 const SESSION_ID = urlParams.get("sessionId");
 const USER_ID = urlParams.get("userId");
 
+const { renderMarkdown, rerenderAllMessages } = window.ChatRenderer;
+
 if (!USER_ID) {
   alert("No user ID found in URL. Please log in or use a valid link.");
 }
-
 if (!SESSION_ID) {
   alert("No session ID found in URL. Please log in or use a valid link.");
 }
@@ -28,6 +30,11 @@ inputEl.addEventListener("keydown", (e) => {
     e.preventDefault();
     sendMessage();
   }
+});
+
+// Render existing history on page load
+window.addEventListener("load", () => {
+  rerenderAllMessages();
 });
 
 async function sendMessage() {
@@ -58,19 +65,24 @@ async function sendMessage() {
     const reader = res.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let gotFirstChunk = false;
+    let assistantText = "";
 
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
+      assistantText += chunk;
 
       if (!gotFirstChunk) {
         gotFirstChunk = true;
         assistantEl.innerHTML = "";
       }
 
-      assistantEl.textContent += chunk;
+      // Live rendering while streaming
+      renderMarkdown(assistantEl, assistantText);
+      assistantEl.dataset.raw = assistantText;
+
       chatEl.scrollTop = chatEl.scrollHeight;
       await new Promise(requestAnimationFrame);
     }
@@ -101,7 +113,14 @@ function appendMessage(text, type) {
   msg.classList.add("message", type);
   signature.textContent = type == "assistant" ? "Assistant" : "You";
   signature.textContent += ` | ${getCurrentDateTime()}`;
-  msg.textContent = text;
+
+  if (type === "assistant") {
+    msg.dataset.raw = text;
+    renderMarkdown(msg, text);
+  } else {
+    msg.textContent = text;
+  }
+
   chatEl.appendChild(signature);
   chatEl.appendChild(msg);
   chatEl.scrollTop = chatEl.scrollHeight;

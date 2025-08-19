@@ -123,3 +123,32 @@ button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* code block styling */
+.code-block {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 1em 0;
+
+    pre {
+        margin: 0 !important;
+        padding: 1em !important;
+        border-radius: 0 0 5px 5px !important;
+        background: $color-bg-dark-1 !important;
+        /* ← your background */
+        color: #f8f8f2 !important;
+        /* ← your default text color */
+    }
+
+    .code-lang-label {
+        position: relative;
+        background: lighten($color-bg-dark-1, 10%);
+        color: $color-text-light;
+        font-size: 0.75em;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border-radius: 5px 5px 0 0;
+        pointer-events: none;
+    }
+}
