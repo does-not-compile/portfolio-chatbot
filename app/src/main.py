@@ -9,6 +9,7 @@ from openai import OpenAI
 from src.db import engine, get_db, SessionLocal
 from src.models import Base, RoleEnum
 from src.crud import CRUD
+from src.context import SystemMessage, Information
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
@@ -18,7 +19,7 @@ import logging
 app = FastAPI()
 
 logger = logging.getLogger("chat_stream")
-load_dotenv()
+# load_dotenv()
 
 Base.metadata.create_all(bind=engine)
 
@@ -32,9 +33,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["chat.snagel.io", "*.chat.snagel.io"]
-)
+
+if not os.getenv("ENV") == "DEV":
+    print(f"ENV={os.getenv('ENV')}")
+    allowed_hosts = ["chat.snagel.io", "*.chat.snagel.io"]
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -135,7 +138,13 @@ async def chat_stream(req: PromptRequest):
 
             stream = client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=[{"role": h["role"], "content": h["content"]} for h in hist],
+                messages=[
+                    {"role": "system", "content": SystemMessage.SYSMSG_NORMAL.value}
+                ]
+                + [{"role": "assistant", "content": Information.EDUCATION.value}]
+                + [{"role": "assistant", "content": Information.ABOUTME.value}]
+                + [{"role": "assistant", "content": Information.PROJECTS.value}]
+                + [{"role": h["role"], "content": h["content"]} for h in hist],
                 stream=True,
             )
 
