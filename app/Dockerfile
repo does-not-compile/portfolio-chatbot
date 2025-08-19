@@ -1,6 +1,6 @@
-    FROM python:3.12-slim
+FROM python:3.12-slim
 
-# Install system dependencies
+# Install system deps for MariaDB + Python packages
 RUN apt-get update && apt-get install -y gcc libmariadb-dev pkg-config && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
