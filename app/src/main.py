@@ -50,6 +50,11 @@ async def login_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 @app.post("/login")
 async def login_redirect(userId: str = Form(...), db: Session = Depends(get_db)):
     # Check if user exists
