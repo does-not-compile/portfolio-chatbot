@@ -36,7 +36,7 @@ app.add_middleware(
 
 if not os.getenv("ENV") == "DEV":
     print(f"ENV={os.getenv('ENV')}")
-    allowed_hosts = ["chat.snagel.io", "*.chat.snagel.io"]
+    allowed_hosts = ["chat.snagel.io", "*.chat.snagel.io", "fastapi-app"]
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
