@@ -70,7 +70,8 @@ services:
       - nginx-proxy
     environment:
       NGINX_PROXY_CONTAINER: nginx-proxy
-      ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory
+      ACME_CA_URI: https://acme-staging-v02.api.letsencrypt.org/directory # stating (better rate limits for testing)
+      # ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory # production
     volumes_from:
       - nginx-proxy
     volumes:
@@ -89,6 +90,7 @@ volumes:
 
 networks:
   proxy:
+    name: app_proxy
     driver: bridge
   internal:
     driver: bridge
