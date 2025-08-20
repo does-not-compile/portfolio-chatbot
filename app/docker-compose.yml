@@ -19,6 +19,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    networks:
+      - internal
 
   fastapi:
     build:
@@ -30,7 +32,7 @@ services:
       - .env
     environment:
       VIRTUAL_HOST: chat.snagel.io
-      VIRTUAL_PORT: 8000   # important for nginx-proxy
+      VIRTUAL_PORT: 8000
       LETSENCRYPT_HOST: chat.snagel.io
       LETSENCRYPT_EMAIL: sebastian.nagel1@gmx.com
       DB_HOST: mariadb
@@ -41,8 +43,8 @@ services:
     command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
     networks:
       - proxy
-      - default
-  
+      - internal
+
   nginx-proxy:
     image: jwilder/nginx-proxy:latest
     container_name: nginx-proxy
@@ -87,5 +89,6 @@ volumes:
 
 networks:
   proxy:
-    external: false
+    driver: bridge
+  internal:
     driver: bridge
