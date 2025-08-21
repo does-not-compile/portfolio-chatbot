@@ -3,7 +3,7 @@ set -euo pipefail
 
 REGION="eu-central-1"
 APP_DIR="$HOME/app"
-ENV_FILE="$APP_DIR/app/.env"
+ENV_FILE="$APP_DIR/.env"
 DOMAIN="chat.snagel.io"
 EMAIL="sebastian.nagel1@gmx.com"
 
