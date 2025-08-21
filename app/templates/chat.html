@@ -31,7 +31,7 @@
                 Assistant
                 {% else %}
                 You
-                {% endif %} | {{ el.timestamp }}</div>
+                {% endif %} | {{ el.created_at }}</div>
             <div class="message {{ el.role }}">{{ el.content }}</div>
             {% endfor %}
         </div>
