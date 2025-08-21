@@ -58,7 +58,7 @@ sudo systemctl stop amazon-ssm-agent || true
 
 # --- Start all Docker services ---
 cd "$APP_DIR"
-sudo docker-compose up -d --build
+sudo docker-compose -f docker-compose.yml up -d --build # ensure no override merge is performed!
 
 # --- Wait for nginx-proxy and letsencrypt to initialize ---
 sleep 10

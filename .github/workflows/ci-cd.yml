@@ -28,13 +28,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/<your-username>/<repo-name>:latest \
-                       -t ghcr.io/<your-username>/<repo-name>:${SHA_TAG} .
+          docker build -t ghcr.io/does-not-compile/portfolio-chatbot:latest \
+                       -t ghcr.io/does-not-compile/portfolio-chatbot:${SHA_TAG} .
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/<your-username>/<repo-name>:latest
-          docker push ghcr.io/<your-username>/<repo-name>:${SHA_TAG}
+          docker push ghcr.io/does-not-compile/portfolio-chatbot:latest
+          docker push ghcr.io/does-not-compile/portfolio-chatbot:${SHA_TAG}
 
   deploy:
     name: Deploy to EC2
@@ -50,8 +50,25 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/myproject
-            echo "Pulling new FastAPI image (SHA: ${{ env.SHA_TAG }})..."
+            echo "Pulling new FastAPI image..."
             docker-compose pull fastapi
             echo "Restarting FastAPI service..."
             docker-compose up -d fastapi
-            docker-compose ps fastapi
+
+            echo "Checking FastAPI health..."
+            for i in {1..10}; do
+              sleep 3
+              if curl -fs http://localhost:8000/health; then
+                echo "FastAPI is healthy!"
+                echo "Cleaning up old images, volumes, and networks..."
+                docker image prune -af
+                docker volume prune -f
+                docker network prune -f
+
+                exit 0
+              fi
+            done
+
+            echo "FastAPI failed health check, rolling back..."
+            docker-compose up -d fastapi
+            exit 1
