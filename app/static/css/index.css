@@ -60,8 +60,15 @@ body {
           user-select: none;
 }
 
+.interaction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .btn-submit,
 .a-submit {
+  width: 90%;
   color: #fff;
   background-color: rgb(41, 83, 251);
   margin: 2rem 0.5rem;

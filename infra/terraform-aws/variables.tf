@@ -20,6 +20,11 @@ variable "public_key_path" {
   type        = string
 }
 
+variable "private_key_path" {
+  description = "Path to your private SSH key for EC2"
+  type        = string
+}
+
 variable "ami_id" {
   description = "Optional: manually set an AMI ID. Leave empty to auto-select Ubuntu 24.04"
   type        = string

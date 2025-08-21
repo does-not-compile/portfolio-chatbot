@@ -13,7 +13,13 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/chat.css')}} " />
     <link rel="stylesheet" href="{{ url_for('static', path='css/main.css')}} " />
     <link rel="stylesheet" href="{{ url_for('static', path='css/loading.css')}} " />
-    <script src="{{ url_for('static', path='js/chat.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/prism.css')}} " />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js" defer></script>
+    <script src="/static/js/renderer.js" defer></script>
+    <script src="/static/js/prism.js" defer></script>
+    <script src="/static/js/chat.js" defer></script>
+
+
 </head>
 
 <body>
@@ -25,13 +31,15 @@
                 Assistant
                 {% else %}
                 You
-                {% endif %} | {{ el.timestamp }}</div>
+                {% endif %} | {{ el.created_at }}</div>
             <div class="message {{ el.role }}">{{ el.content }}</div>
             {% endfor %}
         </div>
         <div id="input-wrapper">
-            <textarea id="input" placeholder="Ask me anything..." rows="1"></textarea>
-            <button onclick="sendMessage()" id="send-btn"></button>
+            <div class="input" id="input">
+                <textarea id="input-text" placeholder="Ask me anything..." rows="1"></textarea>
+                <button onclick="sendMessage()" id="send-btn"></button>
+            </div>
         </div>
     </div>
 </body>

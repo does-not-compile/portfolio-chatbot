@@ -1,18 +1,19 @@
-# Find latest Ubuntu 24.04 LTS in eu-central-1
+# Find the latest Ubuntu 24.x LTS AMI (x86_64) in the current region
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["099720109477"] # Canonical's official AWS account
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-noble-24.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-*-amd64-server-*"]
   }
 
   filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
+
 
 # Key pair (for SSH access)
 resource "aws_key_pair" "deployer" {
@@ -23,7 +24,7 @@ resource "aws_key_pair" "deployer" {
 # Security group for EC2
 resource "aws_security_group" "chat_sg" {
   name        = "chat-app-sg"
-  description = "Allow HTTP, HTTPS, SSH, and DB"
+  description = "Allow HTTP, HTTPS, SSH, and App"
 
   ingress {
     description = "SSH"
@@ -37,6 +38,14 @@ resource "aws_security_group" "chat_sg" {
     description = "HTTP"
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -64,37 +73,38 @@ resource "aws_instance" "chat_app" {
   instance_type = var.instance_type
   key_name      = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.chat_sg.id]
-  iam_instance_profile        = aws_iam_instance_profile.chat_profile.name
-  user_data = templatefile("${path.module}/user_data.sh.tpl", {
-    region = var.aws_region
-  })
+  iam_instance_profile  = aws_iam_instance_profile.chat_profile.name
 
+  # Ensure instance gets a public IP
+  associate_public_ip_address = true
 
   tags = {
     Name = "chat-app-server"
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file(var.private_key_path)
+    host        = self.public_ip
+  }
+  
+  provisioner "file" {
+    source      = "setup.sh"
+    destination = "/home/ubuntu/setup.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x ~/setup.sh",
+      "bash ~/setup.sh"
+    ]
   }
 }
 
 # Elastic IP (static)
 resource "aws_eip" "chat_app_eip" {
   instance = aws_instance.chat_app.id
-}
-
-# SSM Parameters (encrypted with KMS by default)
-resource "aws_ssm_parameter" "db_root_pass" {
-  name        = "/chatapp/db_root_pass"
-  type        = "SecureString"
-  value       = var.db_root_pass
-}
-
-resource "aws_ssm_parameter" "db_pass" {
-  name        = "/chatapp/db_pass"
-  type        = "SecureString"
-  value       = var.db_pass
-}
-
-resource "aws_ssm_parameter" "openai_api_key" {
-  name        = "/chatapp/openai_api_key"
-  type        = "SecureString"
-  value       = var.openai_api_key
+  # Ensure the EIP is in the same VPC (for default VPC, optional)
+  domain = "vpc"
 }

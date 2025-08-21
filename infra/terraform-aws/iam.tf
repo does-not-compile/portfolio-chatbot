@@ -2,6 +2,9 @@
 # EC2 Instance Role + Instance Profile
 ######################################
 
+# Get account info for IAM ARNs
+data "aws_caller_identity" "current" {}
+
 # Trust policy so EC2 can assume this role
 data "aws_iam_policy_document" "ec2_assume_role" {
   statement {
@@ -21,8 +24,7 @@ resource "aws_iam_role" "chat_ec2_role" {
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
 }
 
-# Least-privilege inline policy to read only our parameters
-# and decrypt SecureString (KMS is required for SecureString)
+# Least-privilege inline policy to read our parameters
 data "aws_iam_policy_document" "ssm_read_params" {
   statement {
     effect = "Allow"
@@ -30,10 +32,9 @@ data "aws_iam_policy_document" "ssm_read_params" {
       "ssm:GetParameter",
       "ssm:GetParameters"
     ]
+    # Use wildcard to avoid referencing deleted aws_ssm_parameter resources
     resources = [
-      aws_ssm_parameter.db_root_pass.arn,
-      aws_ssm_parameter.db_pass.arn,
-      aws_ssm_parameter.openai_api_key.arn
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/chatapp/*"
     ]
   }
 
@@ -43,11 +44,8 @@ data "aws_iam_policy_document" "ssm_read_params" {
     actions = [
       "kms:Decrypt"
     ]
-    # SecureString in SSM uses AWS managed key alias/aws/ssm
-    # We allow decrypt on that key; the exact key ARN varies per account/region,
-    # so simplest is "*" with a safety condition that it must be via SSM in our region.
+    # Allow decrypt on any key via SSM in our region
     resources = ["*"]
-
     condition {
       test     = "StringEquals"
       variable = "kms:ViaService"
@@ -62,14 +60,13 @@ resource "aws_iam_policy" "ssm_read_params" {
   policy      = data.aws_iam_policy_document.ssm_read_params.json
 }
 
-# (Optional but handy) Attach the AWS-managed policy so the instance can be managed by SSM
-# Not required for Parameter Store reads, but useful later for SSM Session Manager, etc.
+# Attach the AWS-managed policy for SSM Session Manager (optional)
 resource "aws_iam_role_policy_attachment" "ssm_core" {
   role       = aws_iam_role.chat_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# Attach our custom policy
+# Attach our custom SSM read policy
 resource "aws_iam_role_policy_attachment" "attach_ssm_read_params" {
   role       = aws_iam_role.chat_ec2_role.name
   policy_arn = aws_iam_policy.ssm_read_params.arn

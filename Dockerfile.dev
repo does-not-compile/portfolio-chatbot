@@ -5,17 +5,15 @@ RUN apt-get update && apt-get install -y gcc libmariadb-dev pkg-config && rm -rf
 
 WORKDIR /app
 
-# Install Python deps
+# Install Poetry and dependencies
 COPY pyproject.toml uv.lock ./
 RUN pip install --upgrade pip \
     && pip install poetry \
     && poetry config virtualenvs.create false \
     && poetry install --no-root
 
-# Copy app (bind mount in dev, so minimal here)
-COPY ./src ./src
-COPY ./templates ./templates
-COPY ./static ./static
+# Copy app
+COPY ./app /app
 
 EXPOSE 8000
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
