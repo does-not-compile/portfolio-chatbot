@@ -57,7 +57,7 @@ EOF
 sudo systemctl stop amazon-ssm-agent || true
 
 # --- Start all Docker services ---
-cd "$APP_DIR/app"
+cd "$APP_DIR"
 sudo docker-compose up -d --build
 
 # --- Wait for nginx-proxy and letsencrypt to initialize ---
