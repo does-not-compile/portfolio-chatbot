@@ -46,7 +46,7 @@ services:
       - internal
 
   nginx-proxy:
-    image: jwilder/nginx-proxy:latest
+    image: jwilder/nginx-proxy:alpine
     container_name: nginx-proxy
     restart: unless-stopped
     ports:
@@ -54,7 +54,7 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/certs:/etc/nginx/certs:ro
       - ./nginx/vhost.d:/etc/nginx/vhost.d
       - ./nginx/html:/usr/share/nginx/html
     labels:
@@ -70,10 +70,10 @@ services:
       - nginx-proxy
     environment:
       NGINX_PROXY_CONTAINER: nginx-proxy
-      ACME_CA_URI: https://acme-staging-v02.api.letsencrypt.org/directory # stating (better rate limits for testing)
-      # ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory # production
-    volumes_from:
-      - nginx-proxy
+      DEFAULT_EMAIL: sebastian.nagel1@gmx.com
+      # Use staging for testing, switch to production when ready
+      ACME_CA_URI: https://acme-staging-v02.api.letsencrypt.org/directory
+      # ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./nginx/certs:/etc/nginx/certs:rw
@@ -84,9 +84,6 @@ services:
 
 volumes:
   mariadb_data:
-  nginx_certs:
-  nginx_vhost:
-  nginx_html:
 
 networks:
   proxy:
