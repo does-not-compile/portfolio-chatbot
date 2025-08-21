@@ -1,6 +1,6 @@
 import jwt
 from datetime import datetime, timedelta, timezone
-from app.core.config import settings
+from core.config import settings
 
 
 def create_jwt(user_id: str):

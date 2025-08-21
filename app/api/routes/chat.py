@@ -2,13 +2,13 @@ from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from app.db import crud
-from app.db.session import get_db
-from app.core.security import verify_jwt
-from app.core.context import SystemMessage, Information
-from app.schemas.chat import PromptRequest
-from app.db.models import RoleEnum
-from app.core.openai_client import openai_client
+from db import crud
+from db.session import get_db
+from core.security import verify_jwt
+from core.context import SystemMessage, Information
+from schemas.chat import PromptRequest
+from db.models import RoleEnum
+from core.openai_client import openai_client
 from pathlib import Path
 import logging
 

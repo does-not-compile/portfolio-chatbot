@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Form, Depends, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from app.db.session import get_db
-from app.db import crud
-from app.core.security import create_jwt
+from db.session import get_db
+from db import crud
+from core.security import create_jwt
 from uuid import uuid4
 
 router = APIRouter()

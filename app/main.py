@@ -4,11 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from app.core.config import settings
-from app.db.session import Base, engine
-from app.api.routes.health import router as health_router
-from app.api.routes.auth import router as auth_router
-from app.api.routes.chat import router as chat_router
+from core.config import settings
+from db.session import Base, engine
+from api.routes.health import router as health_router
+from api.routes.auth import router as auth_router
+from api.routes.chat import router as chat_router
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent

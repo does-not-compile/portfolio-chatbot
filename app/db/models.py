@@ -4,8 +4,8 @@ from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, Text
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.orm import relationship
-from app.db.session import Base
-from app.core.config import settings
+from db.session import Base
+from core.config import settings
 
 
 class RoleEnum(str, enum.Enum):

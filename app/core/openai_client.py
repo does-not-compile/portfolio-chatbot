@@ -1,6 +1,6 @@
 from typing import Iterable, List, Dict
 from openai import OpenAI
-from app.core.config import settings
+from core.config import settings
 
 
 class OpenAIClient:
