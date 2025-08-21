@@ -13,7 +13,7 @@ RUN pip install --upgrade pip \
     && poetry install --no-root --only main
 
 # Copy app
-COPY ./app .
+COPY ./app /app
 
 EXPOSE 8000
 
