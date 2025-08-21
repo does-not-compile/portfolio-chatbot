@@ -40,7 +40,7 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
     networks:
       - proxy
       - internal
@@ -70,8 +70,8 @@ services:
       - nginx-proxy
     environment:
       NGINX_PROXY_CONTAINER: nginx-proxy
-      # ACME_CA_URI: https://acme-staging-v02.api.letsencrypt.org/directory # stating (better rate limits for testing)
-      ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory # production
+      ACME_CA_URI: https://acme-staging-v02.api.letsencrypt.org/directory # stating (better rate limits for testing)
+      # ACME_CA_URI: https://acme-v02.api.letsencrypt.org/directory # production
     volumes_from:
       - nginx-proxy
     volumes:
