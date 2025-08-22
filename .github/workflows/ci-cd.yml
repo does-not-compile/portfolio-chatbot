@@ -102,7 +102,7 @@ jobs:
               docker push ghcr.io/does-not-compile/portfolio-chatbot:stable
 
               echo "Updating override file with SHA $SHA_TAG..."
-              cat > docker-compose.override.yml <<-EOF
+              cat > docker-compose.override.yml <<EOF
               version: "3.9"
               services:
                 fastapi:
