@@ -102,12 +102,12 @@ jobs:
               docker push ghcr.io/does-not-compile/portfolio-chatbot:stable
 
               echo "Updating override file with SHA $SHA_TAG..."
-              cat > docker-compose.override.yml <<EOF
+              cat > docker-compose.override.yml <<-EOF
               version: "3.9"
               services:
                 fastapi:
                   image: ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
-EOF
+              EOF
 
               echo "Deploying FastAPI with new stable image..."
               docker-compose up -d fastapi
