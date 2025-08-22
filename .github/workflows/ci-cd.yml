@@ -28,13 +28,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set SHA tag
-        id: set-sha
+      - id: set-sha
+        name: Set SHA tag
         run: |
-          # Take first 7 chars of commit SHA
-          SHA_TAG=${GITHUB_SHA::7}
-          echo "sha_tag=$SHA_TAG" >> $GITHUB_OUTPUT
-          echo "Built image SHA_TAG: $SHA_TAG"
+          # Compute SHA tag
+          SHA_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          # Make it available as step output (modern recommended way)
+          echo "sha_tag=$SHA_TAG" >> "$GITHUB_OUTPUT"
+          # Optional: also available in this job
+          echo "SHA_TAG=$SHA_TAG" >> "$GITHUB_ENV"
+          echo "Set SHA_TAG=$SHA_TAG"
 
       - name: Build Docker image
         run: |
@@ -60,6 +63,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: SHA_TAG=${{ needs.build-and-push.outputs.sha_tag }}
           script: |
             set -e
             cd /home/ubuntu/app
