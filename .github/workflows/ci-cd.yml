@@ -33,7 +33,7 @@ jobs:
         run: |
           SHA_TAG=$(echo $GITHUB_SHA | cut -c1-7)
           echo "SHA_TAG=$SHA_TAG" >> $GITHUB_ENV
-          echo "::set-output name=sha_tag::$SHA_TAG"
+          echo "sha_tag=$SHA_TAG" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         run: |
