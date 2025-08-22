@@ -115,7 +115,7 @@ jobs:
               echo "Cleaning up canary container..."
               docker rm -f $CANARY_NAME
 
-              # Optional: cleanup dangling images
+              # cleanup dangling images
               docker image prune -f
 
               echo "✅ Deployment successful!"
@@ -124,4 +124,5 @@ jobs:
               echo "❌ FastAPI canary failed health check, rolling back..."
               docker rm -f $CANARY_NAME || true
               docker-compose up -d fastapi
+              docker image prune -f
               exit 1
