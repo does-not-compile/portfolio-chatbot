@@ -63,7 +63,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: SHA_TAG=${{ needs.build-and-push.outputs.sha_tag }}
+          envs: SHA_TAG
           script: |
             set -e
             cd /home/ubuntu/app
