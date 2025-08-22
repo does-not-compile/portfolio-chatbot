@@ -1,0 +1,119 @@
+name: CI/CD - FastAPI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    outputs:
+      sha_tag: ${{ steps.set-sha.outputs.sha_tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set SHA tag
+        id: set-sha
+        run: echo "sha_tag=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/does-not-compile/portfolio-chatbot:latest \
+                       -t ghcr.io/does-not-compile/portfolio-chatbot:${{ env.sha_tag }} .
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/does-not-compile/portfolio-chatbot:latest
+          docker push ghcr.io/does-not-compile/portfolio-chatbot:${{ env.sha_tag }}
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    env:
+      SHA_TAG: ${{ needs.build-and-push.outputs.sha_tag }}
+
+    steps:
+      - name: SSH & Deploy FastAPI container via Compose
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ubuntu/app
+
+            echo "Pulling new image for SHA: $SHA_TAG..."
+            docker pull ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
+
+            # --- Start temporary canary container ---
+            CANARY_NAME="fastapi-canary"
+            docker rm -f $CANARY_NAME || true
+            docker run -d --name $CANARY_NAME \
+              --network app_proxy \
+              --network app_internal \
+              --env-file .env \
+              ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG \
+              uvicorn main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips '*'
+
+            # --- Wait for Docker health check ---
+            echo "Waiting for FastAPI canary to become healthy..."
+            HEALTH_OK=0
+            for i in {1..20}; do
+              STATUS=$(docker inspect --format='{{.State.Health.Status}}' $CANARY_NAME || echo "none")
+              if [ "$STATUS" = "healthy" ]; then
+                HEALTH_OK=1
+                echo "✅ FastAPI canary is healthy!"
+                break
+              fi
+              sleep 3
+            done
+
+            if [ $HEALTH_OK -eq 1 ]; then
+              echo "Promoting image to stable..."
+              docker tag ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG \
+                          ghcr.io/does-not-compile/portfolio-chatbot:stable
+              docker push ghcr.io/does-not-compile/portfolio-chatbot:stable
+
+              echo "Updating override file with SHA $SHA_TAG..."
+              cat > docker-compose.override.yml <<EOF
+              version: "3.9"
+              services:
+                fastapi:
+                  image: ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
+              EOF
+
+              echo "Deploying FastAPI with new stable image..."
+              docker-compose up -d fastapi
+
+              echo "Cleaning up canary container..."
+              docker rm -f $CANARY_NAME
+
+              # Optional: cleanup dangling images
+              docker image prune -f
+
+              echo "✅ Deployment successful!"
+              exit 0
+            else
+              echo "❌ FastAPI canary failed health check, rolling back..."
+              docker rm -f $CANARY_NAME || true
+              docker-compose up -d fastapi
+              exit 1
+            fi
