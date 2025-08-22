@@ -65,7 +65,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: SHA_TAG
           script: |
-            set -e
+            set -euo pipefail
             cd /home/ubuntu/app
 
             echo "SHA_TAG is '$SHA_TAG'"
@@ -74,19 +74,19 @@ jobs:
 
             # --- Start temporary canary container ---
             CANARY_NAME="fastapi-canary"
-            docker rm -f $CANARY_NAME || true
-            docker run -d --name $CANARY_NAME \
+            docker rm -f "$CANARY_NAME" || true
+            docker run -d --name "$CANARY_NAME" \
               --network app_proxy \
               --network app_internal \
               --env-file .env \
               ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG \
               uvicorn main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips '*'
 
-            # --- Wait for Docker health check ---
+            # --- Wait for Docker health check (POSIX-friendly) ---
             echo "Waiting for FastAPI canary to become healthy..."
             HEALTH_OK=0
-            for i in {1..20}; do
-              STATUS=$(docker inspect --format='{{.State.Health.Status}}' $CANARY_NAME || echo "none")
+            for i in $(seq 1 20); do
+              STATUS=$(docker inspect --format='{{.State.Health.Status}}' "$CANARY_NAME" 2>/dev/null || echo "none")
               if [ "$STATUS" = "healthy" ]; then
                 HEALTH_OK=1
                 echo "✅ FastAPI canary is healthy!"
@@ -95,25 +95,20 @@ jobs:
               sleep 3
             done
 
-            if [ $HEALTH_OK -eq 1 ]; then
+            if [ "$HEALTH_OK" -eq 1 ]; then
               echo "Promoting image to stable..."
-              docker tag ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG \
-                          ghcr.io/does-not-compile/portfolio-chatbot:stable
+              docker tag ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG ghcr.io/does-not-compile/portfolio-chatbot:stable
               docker push ghcr.io/does-not-compile/portfolio-chatbot:stable
 
               echo "Updating override file with SHA $SHA_TAG..."
-              cat > docker-compose.override.yml <<EOF
-              version: "3.9"
-              services:
-                fastapi:
-                  image: ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
-              EOF
+              # portable, avoids heredoc indentation problems
+              printf '%s\n' 'version: "3.9"' 'services:' '  fastapi:' "    image: ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG" > docker-compose.override.yml
 
               echo "Deploying FastAPI with new stable image..."
               docker-compose up -d fastapi
 
               echo "Cleaning up canary container..."
-              docker rm -f $CANARY_NAME
+              docker rm -f "$CANARY_NAME" || true
 
               # cleanup dangling images
               docker image prune -f
@@ -122,7 +117,8 @@ jobs:
               exit 0
             else
               echo "❌ FastAPI canary failed health check, rolling back..."
-              docker rm -f $CANARY_NAME || true
+              docker rm -f "$CANARY_NAME" || true
               docker-compose up -d fastapi
               docker image prune -f
               exit 1
+            fi
