@@ -1,5 +1,4 @@
-version: "3.9"
-
 services:
   fastapi:
-    image: ghcr.io/does-not-compile/portfolio-chatbot:latest
+    image: ghcr.io/does-not-compile/portfolio-chatbot:stable
+    container_name: fastapi-app

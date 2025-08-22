@@ -54,25 +54,36 @@
             key: ${{ secrets.EC2_SSH_KEY }}
             script: |
               cd /home/ubuntu/app
+
+              # --- Get the currently running FastAPI image ---
+              PREV_IMAGE=$(docker inspect --format='{{.Config.Image}}' fastapi-app)
+
+              # --- Pull new image ---
               echo "Pulling new FastAPI image..."
               docker-compose pull fastapi
+
+              # --- Deploy new image ---
               echo "Restarting FastAPI service..."
               docker-compose up -d fastapi
 
+              # --- Health check ---
               echo "Checking FastAPI health..."
               for i in {1..10}; do
                 sleep 3
-                if curl -fs http://localhost:8000/health; then
+                if curl -fsS http://localhost:8000/health; then
                   echo "FastAPI is healthy!"
                   echo "Cleaning up old images, volumes, and networks..."
                   docker image prune -af
                   docker volume prune -f
                   docker network prune -f
-
                   exit 0
                 fi
               done
 
-              echo "FastAPI failed health check, rolling back..."
-              docker-compose up -d fastapi
+              # --- Rollback ---
+              echo "FastAPI failed health check, rolling back to previous image: $PREV_IMAGE"
+              docker stop fastapi-app || true
+              docker rm fastapi-app || true
+              docker run -d --name fastapi-app --network app_proxy -p 8000:8000 $PREV_IMAGE
+
               exit 1
