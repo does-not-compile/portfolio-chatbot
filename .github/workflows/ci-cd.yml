@@ -123,7 +123,7 @@ jobs:
   promote-to-stable:
     name: Promote SHA to GHCR Stable
     needs: deploy-to-ec2
-    if: success()
+    if: success()   # only runs if deploy succeeded
     runs-on: ubuntu-latest
     steps:
       - name: Log in to GHCR
@@ -131,11 +131,15 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ secrets.GHCR_PAT }}  # Personal Access Token with write:packages
 
       - name: Tag & Push stable
         run: |
           SHA_TAG=${{ needs.deploy-to-ec2.outputs.deploy_sha }}
+          echo "Promoting SHA $SHA_TAG to stable in GHCR..."
+          # Pull the SHA-tagged image (ensures it's local)
           docker pull ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
+          # Tag it as stable
           docker tag ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG ghcr.io/does-not-compile/portfolio-chatbot:stable
+          # Push stable to GHCR
           docker push ghcr.io/does-not-compile/portfolio-chatbot:stable
