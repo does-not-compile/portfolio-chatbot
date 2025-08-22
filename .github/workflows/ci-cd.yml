@@ -11,51 +11,45 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push:
-    name: Build & Push Docker Image
+  # --- Job 1: Build and push SHA-tagged image ---
+  build-and-push-sha:
+    name: Build & Push SHA Image
     runs-on: ubuntu-latest
     outputs:
       sha_tag: ${{ steps.set-sha.outputs.sha_tag }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Log in to GitHub Container Registry
+      - id: set-sha
+        name: Set SHA tag
+        run: |
+          SHA_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          echo "sha_tag=$SHA_TAG" >> "$GITHUB_OUTPUT"
+          echo "SHA_TAG=$SHA_TAG" >> "$GITHUB_ENV"
+
+      - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: set-sha
-        name: Set SHA tag
-        run: |
-          # Compute SHA tag
-          SHA_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-          # Make it available as step output (modern recommended way)
-          echo "sha_tag=$SHA_TAG" >> "$GITHUB_OUTPUT"
-          # Optional: also available in this job
-          echo "SHA_TAG=$SHA_TAG" >> "$GITHUB_ENV"
-          echo "Set SHA_TAG=$SHA_TAG"
-
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/does-not-compile/portfolio-chatbot:latest \
-                       -t ghcr.io/does-not-compile/portfolio-chatbot:${{ steps.set-sha.outputs.sha_tag }} .
+          docker build -t ghcr.io/does-not-compile/portfolio-chatbot:${{ steps.set-sha.outputs.sha_tag }} .
 
-      - name: Push Docker image
+      - name: Push SHA image
         run: |
-          docker push ghcr.io/does-not-compile/portfolio-chatbot:latest
           docker push ghcr.io/does-not-compile/portfolio-chatbot:${{ steps.set-sha.outputs.sha_tag }}
 
-  deploy:
-    name: Deploy to EC2
-    needs: build-and-push
+  # --- Job 2: Deploy SHA to EC2 ---
+  deploy-to-ec2:
+    name: Deploy SHA to EC2
+    needs: build-and-push-sha
     runs-on: ubuntu-latest
     env:
-      SHA_TAG: ${{ needs.build-and-push.outputs.sha_tag }}
-
+      SHA_TAG: ${{ needs.build-and-push-sha.outputs.sha_tag }}
     steps:
       - name: SSH & Deploy FastAPI container via Compose
         uses: appleboy/ssh-action@v0.1.6
@@ -82,7 +76,7 @@ jobs:
               ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG \
               uvicorn main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips '*'
 
-            # --- Wait for Docker health check (POSIX-friendly) ---
+            # --- Wait for Docker health check ---
             echo "Waiting for FastAPI canary to become healthy..."
             HEALTH_OK=0
             for i in $(seq 1 20); do
@@ -96,21 +90,21 @@ jobs:
             done
 
             if [ "$HEALTH_OK" -eq 1 ]; then
-              echo "Promoting image to stable..."
+              echo "Promoting image to local stable..."
               docker tag ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG ghcr.io/does-not-compile/portfolio-chatbot:stable
-              docker push ghcr.io/does-not-compile/portfolio-chatbot:stable
 
               echo "Updating override file with SHA $SHA_TAG..."
-              # portable, avoids heredoc indentation problems
               printf '%s\n' 'version: "3.9"' 'services:' '  fastapi:' "    image: ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG" > docker-compose.override.yml
+
+              echo "Stopping existing fastapi container (if any)..."
+              docker-compose stop fastapi || true
+              docker-compose rm -f fastapi || true
 
               echo "Deploying FastAPI with new stable image..."
               docker-compose up -d fastapi
 
               echo "Cleaning up canary container..."
               docker rm -f "$CANARY_NAME" || true
-
-              # cleanup dangling images
               docker image prune -f
 
               echo "✅ Deployment successful!"
@@ -122,3 +116,26 @@ jobs:
               docker image prune -f
               exit 1
             fi
+    outputs:
+      deploy_sha: ${{ needs.build-and-push-sha.outputs.sha_tag }}
+
+  # --- Job 3: Promote SHA to stable in GHCR (runs only if deploy succeeded) ---
+  promote-to-stable:
+    name: Promote SHA to GHCR Stable
+    needs: deploy-to-ec2
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Tag & Push stable
+        run: |
+          SHA_TAG=${{ needs.deploy-to-ec2.outputs.deploy_sha }}
+          docker pull ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
+          docker tag ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG ghcr.io/does-not-compile/portfolio-chatbot:stable
+          docker push ghcr.io/does-not-compile/portfolio-chatbot:stable
