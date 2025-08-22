@@ -30,17 +30,20 @@ jobs:
 
       - name: Set SHA tag
         id: set-sha
-        run: echo "sha_tag=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+        run: |
+          SHA_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          echo "SHA_TAG=$SHA_TAG" >> $GITHUB_ENV
+          echo "::set-output name=sha_tag::$SHA_TAG"
 
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/does-not-compile/portfolio-chatbot:latest \
-                       -t ghcr.io/does-not-compile/portfolio-chatbot:${{ env.sha_tag }} .
+                       -t ghcr.io/does-not-compile/portfolio-chatbot:${{ env.SHA_TAG }} .
 
       - name: Push Docker image
         run: |
           docker push ghcr.io/does-not-compile/portfolio-chatbot:latest
-          docker push ghcr.io/does-not-compile/portfolio-chatbot:${{ env.sha_tag }}
+          docker push ghcr.io/does-not-compile/portfolio-chatbot:${{ env.SHA_TAG }}
 
   deploy:
     name: Deploy to EC2
@@ -60,6 +63,7 @@ jobs:
             set -e
             cd /home/ubuntu/app
 
+            echo "SHA_TAG is '$SHA_TAG'"
             echo "Pulling new image for SHA: $SHA_TAG..."
             docker pull ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
 
@@ -116,4 +120,3 @@ jobs:
               docker rm -f $CANARY_NAME || true
               docker-compose up -d fastapi
               exit 1
-            fi
