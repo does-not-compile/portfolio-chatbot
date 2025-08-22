@@ -31,19 +31,20 @@ jobs:
       - name: Set SHA tag
         id: set-sha
         run: |
-          SHA_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-          echo "SHA_TAG=$SHA_TAG" >> $GITHUB_ENV
+          # Take first 7 chars of commit SHA
+          SHA_TAG=${GITHUB_SHA::7}
           echo "sha_tag=$SHA_TAG" >> $GITHUB_OUTPUT
+          echo "Built image SHA_TAG: $SHA_TAG"
 
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/does-not-compile/portfolio-chatbot:latest \
-                       -t ghcr.io/does-not-compile/portfolio-chatbot:${{ env.SHA_TAG }} .
+                       -t ghcr.io/does-not-compile/portfolio-chatbot:${{ steps.set-sha.outputs.sha_tag }} .
 
       - name: Push Docker image
         run: |
           docker push ghcr.io/does-not-compile/portfolio-chatbot:latest
-          docker push ghcr.io/does-not-compile/portfolio-chatbot:${{ env.SHA_TAG }}
+          docker push ghcr.io/does-not-compile/portfolio-chatbot:${{ steps.set-sha.outputs.sha_tag }}
 
   deploy:
     name: Deploy to EC2
@@ -59,7 +60,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: SHA_TAG=${{ needs.build-and-push.outputs.sha_tag }}
           script: |
             set -e
             cd /home/ubuntu/app
