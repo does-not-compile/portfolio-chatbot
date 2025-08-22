@@ -107,7 +107,7 @@ jobs:
               services:
                 fastapi:
                   image: ghcr.io/does-not-compile/portfolio-chatbot:$SHA_TAG
-              EOF
+EOF
 
               echo "Deploying FastAPI with new stable image..."
               docker-compose up -d fastapi
