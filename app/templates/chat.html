@@ -31,11 +31,20 @@
                 Assistant
                 {% else %}
                 You
-                {% endif %} | {{ el.created_at }}</div>
+                {% endif %} | <span class="timestamp" data-utc="{{ el.created_at.isoformat() }}Z"></span></div>
             <div class="message {{ el.role }}">{{ el.content }}</div>
             {% endfor %}
         </div>
-        <div id="input-wrapper">
+        <div class="col" id="input-wrapper">
+            <!-- <div class="suggestion-wrapper">
+                <div class="arrow left">←</div>
+                <div class="tags">
+                    <div class="tag green suggestion">What are Sebastian's strengths?</div>
+                    <div class="tag green suggestion">Where do you see Sebastian in 5 years?</div>
+                    <div class="tag green suggestion">What value would he bring to our DS Team?</div>
+                </div>
+                <div class="arrow right">→</div>
+            </div> -->
             <div class="input" id="input">
                 <textarea id="input-text" placeholder="Ask me anything..." rows="1"></textarea>
                 <button onclick="sendMessage()" id="send-btn"></button>

@@ -4,7 +4,31 @@ const inputWrapper = document.getElementById("input-wrapper"); // outer div
 const inputEl = document.getElementById("input-text");
 const sendBtn = document.getElementById("send-btn");
 const sessionId = window.location.pathname.split("/").pop();
+//const suggestions = document.querySelectorAll(".suggestion");
 const { renderMarkdown, rerenderAllMessages } = window.ChatRenderer;
+
+// convert all timestamps to the user's timezone
+function formatDate(date) {
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-based
+  const yyyy = date.getFullYear();
+
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  const ss = String(date.getSeconds()).padStart(2, "0");
+
+  return `${dd}-${mm}-${yyyy} ${hh}:${min}:${ss}`;
+}
+
+document.querySelectorAll(".timestamp").forEach((el) => {
+  const utc = el.dataset.utc;
+  if (!utc) return; // skip if no data-utc
+
+  const localDate = new Date(utc.trim());
+  if (isNaN(localDate)) return; // skip invalid dates
+
+  el.textContent = formatDate(localDate);
+});
 
 if (!sessionId) {
   alert("No session ID found in URL. Please log in or use a valid link.");
@@ -32,6 +56,13 @@ inputEl.addEventListener("keydown", (e) => {
     sendMessage();
   }
 });
+
+// suggestions.forEach((element) => {
+//   element.addEventListener("click", () => {
+//     inputEl.value = element.innerText;
+//     sendMessage();
+//   });
+// });
 
 // Render existing history on page load
 window.addEventListener("load", () => {
@@ -84,7 +115,7 @@ async function sendMessage() {
     }
   } catch (err) {
     console.error(err);
-    assistantEl.textContent = "[Error: Could not fetch response]";
+    assistantEl.textContent = "I'm sorry. Something went wrong!";
   } finally {
     sendBtn.disabled = false;
   }
