@@ -37,7 +37,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/app/app
+      - ./app:/app
+      - ./app/static:/app/static
+      - ./app/templates:/app/templates
     depends_on:
       mariadb:
         condition: service_healthy
