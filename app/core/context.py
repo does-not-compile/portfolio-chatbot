@@ -142,7 +142,7 @@ Final grade: 2.0
 """
     PROJECTS = """Projects:
 # This CV chatbot
-A FastAPI based CV-Chatbot, hosted on AWS using Terraform, Github Actions and Docker.
+A FastAPI based CV-Chatbot, hosted on AWS using Terraform, Github Actions and Docker. URL to GitHub Repo: https://github.com/does-not-compile/portfolio-chatbot
 # swizzle — audio to tabs via CNN
 Transforming audio files into guitar tabs using their spectrographic representations with a CNN.
 # Video-2-Workinstruction
