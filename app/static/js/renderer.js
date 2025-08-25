@@ -1,24 +1,61 @@
-// renderer.js
-// Handles Markdown + Prism rendering
-
 const md = window.markdownit({
   html: true,
   linkify: true,
   typographer: true,
 });
 
-// ─── Strip <p> everywhere to prevent extra spacing ────────────────
-md.renderer.rules.paragraph_open = () => "";
-md.renderer.rules.paragraph_close = () => "";
+// --- Core plugin: tighten paragraphs inside list items only when appropriate ---
+function tightenNestedListParagraphs(md) {
+  md.core.ruler.after(
+    "block",
+    "tighten_nested_list_paragraphs",
+    function (state) {
+      const tokens = state.tokens;
 
-// ─── Prevent Markdown-it from inserting extra newlines after list markers ──
-md.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
-  let result = self.renderToken(tokens, idx, options);
-  return result.replace(/\n$/, ""); // remove newline after <li>
+      for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i].type !== "paragraph_open") continue;
+
+        const inline = tokens[i + 1];
+        const close = tokens[i + 2];
+        if (
+          !inline ||
+          inline.type !== "inline" ||
+          !close ||
+          close.type !== "paragraph_close"
+        ) {
+          continue;
+        }
+
+        // Look ahead: is the very next *non-hidden* token a nested list?
+        let k = i + 3;
+        while (k < tokens.length && tokens[k].hidden) k++;
+        if (
+          k < tokens.length &&
+          (tokens[k].type === "bullet_list_open" ||
+            tokens[k].type === "ordered_list_open")
+        ) {
+          console.log(
+            "-> Hiding paragraph wrappers before nested list at index",
+            i
+          );
+          tokens[i].hidden = true;
+          tokens[i + 2].hidden = true;
+        }
+      }
+    }
+  );
+}
+
+md.use(tightenNestedListParagraphs);
+
+md.renderer.rules.paragraph_open = function (tokens, idx, options, env, self) {
+  if (tokens[idx].hidden) return ""; // 🚑 respect hidden
+  return self.renderToken(tokens, idx, options);
 };
-md.renderer.rules.list_item_close = (tokens, idx, options, env, self) => {
-  let result = self.renderToken(tokens, idx, options);
-  return result.replace(/\n$/, ""); // remove newline before </li>
+
+md.renderer.rules.paragraph_close = function (tokens, idx, options, env, self) {
+  if (tokens[idx].hidden) return ""; // 🚑 respect hidden
+  return self.renderToken(tokens, idx, options);
 };
 
 // ─── Render Markdown into element ───────────────────────────────
@@ -26,8 +63,11 @@ window.ChatRenderer = {
   renderMarkdown(el, text) {
     let html = md.render(text || "");
 
-    // Remove trailing whitespace / empty lines everywhere
-    html = html.replace(/(\s|<br>)+$/gm, "");
+    // remove newlines that precede tags (they are introduced by the LLM for some reason.)
+    html = html.replace(/\n+(?=<)/g, "");
+
+    // remove newline introduced by markdown-it
+    html = html.replace(/\s+$/g, "");
 
     el.innerHTML = html;
 

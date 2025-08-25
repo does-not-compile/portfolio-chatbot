@@ -40,7 +40,7 @@ body {
     padding: 1rem 20%;
 
     @include respond-to("medium") {
-        padding: 1rem 1.5rem;
+        padding: 1rem 2.5%;
     }
 
     // last child get's bottom spacer
@@ -107,15 +107,15 @@ body {
     flex-direction: row;
     align-items: flex-end;
     gap: 0.5rem;
-    background-color: lighten($color-bg-dark-1, 10%);
-    border: 1px solid lighten($color-bg-dark-1, 10%);
+    background-color: lighten($color-bg-dark-1, 20%);
+    border: 1px solid lighten($color-bg-dark-1, 20%);
     border-radius: 50px;
     margin: 1rem;
     padding: 0.5rem;
     transition: border-radius 0.2s ease-in-out;
 
     @include respond-to("medium") {
-        width: 100%;
+        width: 95%;
     }
 }
 
@@ -183,7 +183,6 @@ body {
 
 #input-text {
     flex: 1;
-    font-family: $font-family-base;
     min-height: 3rem;
     max-height: 10rem;
     padding: 0.75rem;
@@ -194,10 +193,11 @@ body {
     border-radius: 5px;
     outline: none;
     background-color: transparent;
+    font-family: $font-family-base;
     color: $color-text-light;
 
     &::placeholder {
-        color: darken($color-text-light, 25%);
+        color: $color-text-light;
     }
 }
 
@@ -250,4 +250,28 @@ button:disabled {
         border-radius: 5px 5px 0 0;
         pointer-events: none;
     }
+}
+
+/* collapse soft line breaks */
+* {
+    white-space: normal;
+}
+
+/* Reduce overall list indentation */
+ul,
+ol {
+    padding-left: 1.5rem;
+    /* default is usually 40px or 2.5em */
+    margin-left: 0;
+    /* remove browser default margin */
+}
+
+/* Optional: slightly less space for nested lists */
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+    padding-left: 1rem;
+    /* indentation per nested level */
+    margin-left: 0;
 }
