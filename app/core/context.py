@@ -20,8 +20,6 @@ Your knowledge and responses are focused strictly on Sebastian’s CV, projects,
 
 You always answer in the language the user speaks. Don't just default to English!
 
-Sebastian is currently 34 years old.
-
 """
     SYSMSG_STRICT = """You are an AI assistant whose only function is to provide precise and factual information about Sebastian’s professional life. This includes:
 
@@ -51,7 +49,7 @@ You exist solely to communicate Sebastian’s CV, projects, and professional mil
 
 class Information(str, Enum):
     ABOUTME = """from in vitro to in silico: > whoami
-I'm Sebastian — a data scientist with a background in molecular medicine and a strong belief that curiosity scales.
+I'm Sebastian — a data scientist with a background in molecular medicine and a strong belief that curiosity scales: the more you cultivate it, the more it scales!
 After several years in biomedical research, trying to tease out the secrets of cardiac regeneration, I went from modelling in vitro to in silico: Unlocking my passion for understanding data, I've been building AI systems that solve real-world problems — making expert knowledge accessible, automating complex or repetitive tasks, and transforming complex, unstructured data into actionable insights.
 Simply put: I am here to build models that are useful, not just impressive.
 I enjoy bridging the gap between scientific rigor and practical impact — and I’m most at home where complex problems meet clean code, and insight-driven decision making is the norm.
@@ -59,9 +57,112 @@ Outside of work, I'm an expert bedtime negotiator (although my daughter might di
 
 Other data:
 - I am 34 years old
+- I live in Munich, Germany
 - fluent in German, English, and Python
+
+Here is my full CV:
+
+SEBASTIAN NAGEL Data Scientist  
+City: München
+Email: sebastian.nagel1@gmx.de
+LinkedIn: https://www.linkedin.com/in/sebastiannagel1991/
+Website: https://www.snagel.io  
+GitHub: https://www.github.com/does-not-compile
+Repo of this Chatbot: https://github.com/does-not-compile/portfolio-chatbot
+ 
+About me  
+Curious data scientist with 3+ years of experience of transforming client problems into data science 
+solutions. Having made the switch from 4+ years of biomedical research, I bring a detail-oriented 
+combination of technical expertise and scientific approach, helping my team solve complex problems and 
+delivering insights that drive progress.  
+ 
+So, let's work together and make the world a more insights-driven place!  
+Work History  
+03/2023 – present  
+Data Scientist 
+ERIUM GmbH – Garching bei München (Hybrid) 
+• Built and deployed scalable video-to-workinstruction pipeline, reducing time 
+to first draft by approx. 80% 
+• Built and integrated custom RAG Chatbot for shopfloor worker-assistance-
+system 
+• Contributed to Agentic AI Code Reviewer system able to review PRs by 
+Junior SWEs 
+• Regular contact with clients to define Problems, Goals, and Metrics, and to 
+deliver Progress Reports, MVPs, Prototypes, and Products 
+10/2022 – 01/2023 Trainee Data Science 
+neuefische – School and Pool for Digital Talent (Remote) 
+• Final Project: Successfully trained a CNN to be able to predict Guitar Tab 
+Notation from audio input (GitHub: ”swizzle” - AI powered music notation of 
+songs) 
+• 540 hours of hands-on programming practice with team-based 
+development of a four-week-project as capstone project. 
+• Applied technologies and tools: Python (Pandas, NumPy, SciPy, Scikit-learn, 
+TensorFlow, XGBoost, FastAPI, Matplotlib, and others), Jupyter Notebooks, 
+SQL, UNIX, Git, Agile Methods. 
+01/2022 – present Freelance Scientific Advisor 
+LabForward (Remote) 
+• Advisory, Data Cleaning, and Customer Success services in the context of 
+developing a voice-controlled, AI-powered Laboratory-Assistant 
+02/2018 – 11/2021 Research Scientist 
+Institute of Pharmacology and Toxicology, University Medical Center Göttingen – 
+Göttingen 
+• Developed biological model for myocardial infarctions in engineered human 
+myocardium (EHM) utilizing a sterile organ bath system 
+• Automated data acquisition, processing, and visualization using Python, 
+C++, and BASIC 
+• Statistical analysis and presentation of data in regular institute meetings 
+• Teaching, tutoring, and supervision of rotational students’ projects 
+  
+Skills  
+General 
+• Data Science, Data Visualization and Communication, Machine Learning, Deep Learning, GenAI, 
+Project Management, Software Development, Agile Methods, Rapid Prototyping 
+ 
+Technical 
+• Python (libraries: scikit-learn, TensorFlow, PyTorch, Pandas, NumPy, SciPy, Matplotlib/Seaborn, FastAPI, 
+Streamlit) 
+• Docker 
+• git 
+• SQL 
+• Microcontrollers (Arduino: C++, RPi: Python) 
+• SCSS, HTML 
+• JavaScript 
+ 
+Languages 
+• German (native), English (fluent) 
+Personal interests 
+• Piano & Guitar, Sailing, Exit Rooms 
+  
+Education & Certificates  
+09/2022 
+ 
+IBM Machine Learning Professional Certificate 
+coursera.org 
+• Exploratory Data Analysis, supervised and unsupervised Machine Learning, 
+Deep Learning, and Reinforcement Learning using Python 
+• Final grade: 99.5 % 
+• Link to capstone project (Recommender System): github.com 
+• Link to Certificate: coursera.org 
+ 
+04/2022 Google Data Analytics Professional Certificate 
+coursera.org 
+• Data aggregation, exploration, cleaning, processing, statistical analysis, and 
+visualization using SQL, R, and Tableau 
+• Final grade: 99.9 % 
+• Link to case study (Shared Bicycle User Analysis): kaggle.com 
+• Link to Certificate: credly.com 
+ 
+10/2015 – 09/2017 Master of Science in Molecular Medicine 
+Georg-August-University Göttingen – Göttingen 
+Final grade: 1.5 
+ 
+10/2012 – 09/2015 Bachelor of Science in Molecular Medicine 
+Georg-August-University Göttingen – Göttingen 
+Final grade: 2.0
 """
     PROJECTS = """Projects:
+# This CV chatbot
+A FastAPI based CV-Chatbot, hosted on AWS using Terraform, Github Actions and Docker.
 # swizzle — audio to tabs via CNN
 Transforming audio files into guitar tabs using their spectrographic representations with a CNN.
 # Video-2-Workinstruction
