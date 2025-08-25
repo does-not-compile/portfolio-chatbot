@@ -39,7 +39,7 @@ body {
 }
 @media (max-width: 900px) {
   #chat {
-    padding: 1rem 1.5rem;
+    padding: 1rem 2.5%;
   }
 }
 #chat .message:last-child {
@@ -104,8 +104,8 @@ body {
   flex-direction: row;
   align-items: flex-end;
   gap: 0.5rem;
-  background-color: rgb(25.0545454545, 52.0363636364, 80.9454545455);
-  border: 1px solid rgb(25.0545454545, 52.0363636364, 80.9454545455);
+  background-color: rgb(37.1090909091, 77.0727272727, 119.8909090909);
+  border: 1px solid rgb(37.1090909091, 77.0727272727, 119.8909090909);
   border-radius: 50px;
   margin: 1rem;
   padding: 0.5rem;
@@ -113,7 +113,7 @@ body {
 }
 @media (max-width: 900px) {
   .input {
-    width: 100%;
+    width: 95%;
   }
 }
 
@@ -123,7 +123,6 @@ body {
 
 #input-text {
   flex: 1;
-  font-family: "Inter", sans-serif;
   min-height: 3rem;
   max-height: 10rem;
   padding: 0.75rem;
@@ -134,13 +133,14 @@ body {
   border-radius: 5px;
   outline: none;
   background-color: transparent;
+  font-family: "Inter", sans-serif;
   color: #f5f5f5;
 }
 #input-text::-moz-placeholder {
-  color: rgb(181.25, 181.25, 181.25);
+  color: #f5f5f5;
 }
 #input-text::placeholder {
-  color: rgb(181.25, 181.25, 181.25);
+  color: #f5f5f5;
 }
 
 button {
@@ -189,4 +189,28 @@ button:disabled {
   padding: 0.5rem 1rem;
   border-radius: 5px 5px 0 0;
   pointer-events: none;
+}
+
+/* collapse soft line breaks */
+* {
+  white-space: normal;
+}
+
+/* Reduce overall list indentation */
+ul,
+ol {
+  padding-left: 1.5rem;
+  /* default is usually 40px or 2.5em */
+  margin-left: 0;
+  /* remove browser default margin */
+}
+
+/* Optional: slightly less space for nested lists */
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+  padding-left: 1rem;
+  /* indentation per nested level */
+  margin-left: 0;
 }/*# sourceMappingURL=chat.css.map */
