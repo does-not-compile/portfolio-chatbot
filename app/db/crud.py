@@ -13,13 +13,21 @@ def get_user(db: Session, user_id: str):
 
 
 # --- Sessions ---
+def get_session_ids(db: Session, user_id: str):
+    stmt = select(models.ChatSession.session_id).where(
+        models.ChatSession.user_id == user_id
+    )
+    result = db.execute(stmt).scalars().all()
+    return result
+
+
 def get_session(db: Session, session_id: str):
     return db.get(models.ChatSession, session_id)
 
 
 def close_expired_or_excess_sessions(db: Session, user_id: str):
     # Mark expired
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     db.execute(
         update(models.ChatSession)
         .where(
