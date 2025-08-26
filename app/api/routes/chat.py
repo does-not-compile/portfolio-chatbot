@@ -9,6 +9,7 @@ from core.context import SystemMessage, Information
 from schemas.chat import PromptRequest
 from db.models import RoleEnum
 from core.openai_client import openai_client
+from datetime import datetime, timezone
 from pathlib import Path
 import logging
 
@@ -34,12 +35,16 @@ def chat_page(request: Request, session_id: str, db: Session = Depends(get_db)):
     if not session or session.user_id != user_id:
         raise HTTPException(status_code=403, detail="Invalid session")
 
-    history = crud.get_history(db, session_id)
+    history = crud.get_history(db, session_id, limit=1000)
     return templates.TemplateResponse(
         "chat.html",
         {
             "request": request,
             "session_id": session_id,
+            "now": datetime.now(timezone.utc)
+            .replace(microsecond=0)
+            .isoformat()
+            .replace("+00:00", "Z"),
             "history": history,
         },
     )

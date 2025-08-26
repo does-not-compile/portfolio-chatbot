@@ -23,6 +23,18 @@
 <body>
     <div id="chat-container">
         <div id="chat">
+            <div class="assistant-signature">Assistant | <span class="timestamp" data-utc="{{ now }}"></span>
+            </div>
+            <div class="message assistant" data-raw="Hello! I’m Sebastian's AI assistant, dedicated to providing you with all the information you need
+                about Sebastian's professional life. 
+
+Whether you’re looking for details about his education, work experience, projects, skills, or how he fits into a team culture, I’m here to help! My aim is to help recruiters, hiring managers, and potential colleagues get a clear picture of Sebastian’s qualifications and character. 
+If you have any specific questions about his CV or projects, feel free to ask!
+
+If you have any questions that I can’t answer or if you’d like to connect with Sebastian directly for further discussion, you can reach him via email at sebastian.nagel1@gmx.de or just shoot him a message on [LinkedIn](https://www.linkedin.com/in/sebastiannagel1991/). He’ll be more than happy to chat and provide any additional insights you’re looking for.
+
+Let’s dive into the data together!">
+            </div>
             {% for el in history %}
             <div class="{{ el.role }}-signature">
                 {% if el.role == "assistant" %}
