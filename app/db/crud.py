@@ -25,6 +25,21 @@ def get_session(db: Session, session_id: str):
     return db.get(models.ChatSession, session_id)
 
 
+def get_latest_session_id(db: Session, user_id: str):
+    stmt = (
+        select(models.Message.session_id)
+        .select_from(models.Message)
+        .join(
+            models.ChatSession,
+            models.ChatSession.session_id == models.Message.session_id,
+        )
+        .where(models.ChatSession.user_id == user_id)
+        .order_by(models.Message.created_at.desc())
+        .limit(1)
+    )
+    return db.execute(stmt).scalar()
+
+
 def close_expired_or_excess_sessions(db: Session, user_id: str):
     # Mark expired
     now = datetime.now(timezone.utc)
