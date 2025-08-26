@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from db import crud
@@ -24,6 +24,17 @@ def get_current_user(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     user_id = verify_jwt(token)
     return user_id
+
+
+@router.get("/", response_class=HTMLResponse)
+def latest_session(request: Request, db: Session = Depends(get_db)):
+    user_id = get_current_user(request)
+
+    # get latest session
+    latest_session_id = crud.get_latest_session_id(db, user_id)
+    if not latest_session_id:
+        return RedirectResponse("/")
+    return RedirectResponse(f"/chat/{latest_session_id}")
 
 
 @router.get("/{session_id}", response_class=HTMLResponse)
