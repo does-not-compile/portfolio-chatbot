@@ -9,6 +9,7 @@ from db.session import Base, engine
 from api.routes.health import router as health_router
 from api.routes.auth import router as auth_router
 from api.routes.chat import router as chat_router
+from api.routes.sessions import router as session_router
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -34,6 +35,7 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(chat_router)
+app.include_router(session_router)
 
 
 @app.get("/", response_class=HTMLResponse)
