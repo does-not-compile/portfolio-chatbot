@@ -1,3 +1,6 @@
+// renderer.js
+
+// markdown-it instance
 const md = window.markdownit({
   html: true,
   linkify: true,
@@ -34,10 +37,6 @@ function tightenNestedListParagraphs(md) {
           (tokens[k].type === "bullet_list_open" ||
             tokens[k].type === "ordered_list_open")
         ) {
-          console.log(
-            "-> Hiding paragraph wrappers before nested list at index",
-            i
-          );
           tokens[i].hidden = true;
           tokens[i + 2].hidden = true;
         }
@@ -49,63 +48,60 @@ function tightenNestedListParagraphs(md) {
 md.use(tightenNestedListParagraphs);
 
 md.renderer.rules.paragraph_open = function (tokens, idx, options, env, self) {
-  if (tokens[idx].hidden) return ""; // 🚑 respect hidden
+  if (tokens[idx].hidden) return "";
   return self.renderToken(tokens, idx, options);
 };
 
 md.renderer.rules.paragraph_close = function (tokens, idx, options, env, self) {
-  if (tokens[idx].hidden) return ""; // 🚑 respect hidden
+  if (tokens[idx].hidden) return "";
   return self.renderToken(tokens, idx, options);
 };
 
 // ─── Render Markdown into element ───────────────────────────────
-window.ChatRenderer = {
-  renderMarkdown(el, text) {
-    let html = md.render(text || "");
+function renderMarkdown(el, text) {
+  let html = md.render(text || "");
 
-    // remove newlines that precede tags (they are introduced by the LLM for some reason.)
-    html = html.replace(/\n+(?=<)/g, "");
+  // remove newlines that precede tags
+  html = html.replace(/\n+(?=<)/g, "");
+  // remove trailing whitespace/newline
+  html = html.replace(/\s+$/g, "");
 
-    // remove newline introduced by markdown-it
-    html = html.replace(/\s+$/g, "");
+  el.innerHTML = html;
 
-    el.innerHTML = html;
+  // Prism highlighting
+  el.querySelectorAll("pre code").forEach((block) => {
+    window.Prism.highlightElement(block); // ⬅️ use window.Prism
 
-    // Prism highlighting
-    el.querySelectorAll("pre code").forEach((block) => {
-      Prism.highlightElement(block);
+    // Wrap with .code-block if not already wrapped
+    if (!block.closest(".code-block")) {
+      const pre = block.parentElement;
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-block";
 
-      // Wrap with .code-block if not already wrapped
-      if (!block.closest(".code-block")) {
-        const pre = block.parentElement;
-        const wrapper = document.createElement("div");
-        wrapper.className = "code-block";
+      // detect language
+      const lang =
+        [...block.classList]
+          .find((cls) => cls.startsWith("language-"))
+          ?.replace("language-", "") || "text";
 
-        // detect language
-        const lang =
-          [...block.classList]
-            .find((cls) => cls.startsWith("language-"))
-            ?.replace("language-", "") || "text";
+      // label
+      const label = document.createElement("div");
+      label.className = "code-lang-label";
+      label.innerHTML = `<span>${lang}</span>`;
 
-        // label
-        const label = document.createElement("div");
-        label.className = "code-lang-label";
-        label.innerHTML = `<span>${lang}</span>`;
+      // wrap
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(label);
+      wrapper.appendChild(pre);
+    }
+  });
+}
 
-        // wrap
-        pre.parentNode.insertBefore(wrapper, pre);
-        wrapper.appendChild(label);
-        wrapper.appendChild(pre);
-      }
-    });
-  },
+function rerenderAllMessages() {
+  document.querySelectorAll(".message.assistant").forEach((msg) => {
+    renderMarkdown(msg, msg.dataset.raw || msg.textContent);
+  });
+}
 
-  rerenderAllMessages() {
-    document.querySelectorAll(".message.assistant").forEach((msg) => {
-      window.ChatRenderer.renderMarkdown(
-        msg,
-        msg.dataset.raw || msg.textContent
-      );
-    });
-  },
-};
+// ─── Exports ───────────────────────────────────────────────────
+export { renderMarkdown, rerenderAllMessages };
