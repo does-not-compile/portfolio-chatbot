@@ -1,6 +1,7 @@
 @charset "UTF-8";
 * {
   box-sizing: border-box;
+  white-space: normal;
 }
 
 body {
@@ -11,12 +12,12 @@ body {
   height: 100vh;
   font-family: "Inter", sans-serif;
   font-weight: 400;
+  background: #0d1b2a;
 }
 
 #chat-container {
   display: flex;
   flex-direction: column;
-  background: #0d1b2a;
   width: 100vw;
   height: 100vh;
   padding: 0;
@@ -147,7 +148,7 @@ button {
   border: none;
   border-radius: 50px;
   background-color: #fff;
-  background-image: url("../img/send.svg");
+  background-image: url("../img/int/send.svg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -191,26 +192,17 @@ button:disabled {
   pointer-events: none;
 }
 
-/* collapse soft line breaks */
-* {
-  white-space: normal;
-}
-
 /* Reduce overall list indentation */
 ul,
 ol {
   padding-left: 1.5rem;
-  /* default is usually 40px or 2.5em */
   margin-left: 0;
-  /* remove browser default margin */
 }
 
-/* Optional: slightly less space for nested lists */
 ul ul,
 ol ol,
 ul ol,
 ol ul {
   padding-left: 1rem;
-  /* indentation per nested level */
   margin-left: 0;
 }/*# sourceMappingURL=chat.css.map */

@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatbot</title>
+    <title>Chatbot | snagel.io</title>
+    <link rel="icon" href="{{ url_for('static', path='img/fav/favicon.png') }}" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -15,10 +16,8 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/loading.css')}} " />
     <link rel="stylesheet" href="{{ url_for('static', path='css/prism.css')}} " />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js" defer></script>
-    <script src="/static/js/prism.js" defer></script>
-    <script type="module" src="/static/js/chat.js" defer></script>
-
-
+    <script src="{{ url_for('static', path='js/prism.js')}}" defer></script>
+    <script type="module" src="{{ url_for('static', path='js/chat.js')}}" defer></script>
 </head>
 
 <body>

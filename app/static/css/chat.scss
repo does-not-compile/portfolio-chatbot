@@ -3,6 +3,7 @@
 
 * {
     box-sizing: border-box;
+    white-space: normal;
 }
 
 body {
@@ -13,12 +14,12 @@ body {
     height: 100vh;
     font-family: $font-family-base;
     font-weight: $font-weight-regular;
+    background: $color-bg-dark-1;
 }
 
 #chat-container {
     display: flex;
     flex-direction: column;
-    background: $color-bg-dark-1;
     width: 100vw;
     height: 100vh;
     padding: 0;
@@ -123,6 +124,92 @@ body {
     border-radius: 25px;
 }
 
+#input-text {
+    flex: 1;
+    min-height: 3rem;
+    max-height: 10rem;
+    padding: 0.75rem;
+    resize: none;
+    font-size: 1rem;
+    overflow-y: auto;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    outline: none;
+    background-color: transparent;
+    font-family: $font-family-base;
+    color: $color-text-light;
+
+    &::placeholder {
+        color: $color-text-light;
+    }
+}
+
+button {
+    border: none;
+    border-radius: 50px;
+    background-color: $color-bg-light;
+    background-image: url("../img/int/send.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    width: 3rem;
+    height: 3rem;
+
+    &:hover {
+        box-shadow: 0 0 5px $color-bg-light;
+    }
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* code block styling */
+.code-block {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 1em 0;
+
+    pre {
+        margin: 0 !important;
+        padding: 1em !important;
+        border-radius: 0 0 5px 5px !important;
+        background: $color-bg-dark-1 !important;
+        /* ← your background */
+        color: #f8f8f2 !important;
+        /* ← your default text color */
+    }
+
+    .code-lang-label {
+        position: relative;
+        background: lighten($color-bg-dark-1, 10%);
+        color: $color-text-light;
+        font-size: 0.75em;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border-radius: 5px 5px 0 0;
+        pointer-events: none;
+    }
+}
+
+/* Reduce overall list indentation */
+ul,
+ol {
+    padding-left: 1.5rem;
+    margin-left: 0;
+}
+
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+    padding-left: 1rem;
+    margin-left: 0;
+}
+
 // .suggestion-wrapper {
 //     position: relative;
 //     display: flex;
@@ -180,98 +267,3 @@ body {
 //         }
 //     }
 // }
-
-#input-text {
-    flex: 1;
-    min-height: 3rem;
-    max-height: 10rem;
-    padding: 0.75rem;
-    resize: none;
-    font-size: 1rem;
-    overflow-y: auto;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    outline: none;
-    background-color: transparent;
-    font-family: $font-family-base;
-    color: $color-text-light;
-
-    &::placeholder {
-        color: $color-text-light;
-    }
-}
-
-button {
-    border: none;
-    border-radius: 50px;
-    background-color: $color-bg-light;
-    background-image: url("../img/send.svg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    width: 3rem;
-    height: 3rem;
-
-    &:hover {
-        box-shadow: 0 0 5px $color-bg-light;
-    }
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* code block styling */
-.code-block {
-    position: relative;
-    border-radius: 5px;
-    overflow: hidden;
-    margin: 1em 0;
-
-    pre {
-        margin: 0 !important;
-        padding: 1em !important;
-        border-radius: 0 0 5px 5px !important;
-        background: $color-bg-dark-1 !important;
-        /* ← your background */
-        color: #f8f8f2 !important;
-        /* ← your default text color */
-    }
-
-    .code-lang-label {
-        position: relative;
-        background: lighten($color-bg-dark-1, 10%);
-        color: $color-text-light;
-        font-size: 0.75em;
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-        border-radius: 5px 5px 0 0;
-        pointer-events: none;
-    }
-}
-
-/* collapse soft line breaks */
-* {
-    white-space: normal;
-}
-
-/* Reduce overall list indentation */
-ul,
-ol {
-    padding-left: 1.5rem;
-    /* default is usually 40px or 2.5em */
-    margin-left: 0;
-    /* remove browser default margin */
-}
-
-/* Optional: slightly less space for nested lists */
-ul ul,
-ol ol,
-ul ol,
-ol ul {
-    padding-left: 1rem;
-    /* indentation per nested level */
-    margin-left: 0;
-}
