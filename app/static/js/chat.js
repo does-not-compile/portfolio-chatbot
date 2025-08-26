@@ -22,14 +22,6 @@ if (!sessionId) {
 setupAutoGrow(inputEl, inputContainer);
 scrollToBottom();
 
-// Auto-send on Enter (Shift+Enter for newline)
-inputEl.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-
 // Render existing messages
 window.addEventListener("load", () => {
   rerenderAllMessages();
@@ -90,3 +82,11 @@ async function sendMessage() {
     sendBtn.disabled = false;
   }
 }
+
+// Auto-send on Enter (Shift+Enter for newline)
+inputEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
