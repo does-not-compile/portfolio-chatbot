@@ -8,9 +8,11 @@ import {
 } from "./ui.js";
 import { appendMessage } from "./messages.js";
 import { renderMarkdown, rerenderAllMessages } from "./renderer.js";
+import { localizeTimestamps } from "./utils.js";
 
 const sendBtn = document.getElementById("send-btn");
 const sessionId = window.location.pathname.split("/").pop();
+const timestamps = document.querySelectorAll(".timestamp");
 
 if (!sessionId) {
   alert("No session ID found in URL. Please log in or use a valid link.");
@@ -31,7 +33,8 @@ inputEl.addEventListener("keydown", (e) => {
 // Render existing messages
 window.addEventListener("load", () => {
   rerenderAllMessages();
-  scrollToBottom(true); // force scroll after render
+  localizeTimestamps();
+  scrollToBottom(true);
 });
 
 async function sendMessage() {
