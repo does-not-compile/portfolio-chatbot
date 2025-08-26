@@ -1,53 +1,24 @@
-const chatEl = document.getElementById("chat");
-const inputContainer = document.getElementById("input"); // inner div
-const inputWrapper = document.getElementById("input-wrapper"); // outer div
-const inputEl = document.getElementById("input-text");
+import {
+  chatEl,
+  inputEl,
+  inputContainer,
+  scrollToBottom,
+  setupAutoGrow,
+  resizeInput,
+} from "./ui.js";
+import { appendMessage } from "./messages.js";
+import { renderMarkdown, rerenderAllMessages } from "./renderer.js";
+
 const sendBtn = document.getElementById("send-btn");
 const sessionId = window.location.pathname.split("/").pop();
-//const suggestions = document.querySelectorAll(".suggestion");
-const { renderMarkdown, rerenderAllMessages } = window.ChatRenderer;
-
-// convert all timestamps to the user's timezone
-function formatDate(date) {
-  const dd = String(date.getDate()).padStart(2, "0");
-  const mm = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-based
-  const yyyy = date.getFullYear();
-
-  const hh = String(date.getHours()).padStart(2, "0");
-  const min = String(date.getMinutes()).padStart(2, "0");
-  const ss = String(date.getSeconds()).padStart(2, "0");
-
-  return `${dd}-${mm}-${yyyy} ${hh}:${min}:${ss}`;
-}
-
-document.querySelectorAll(".timestamp").forEach((el) => {
-  const utc = el.dataset.utc;
-  if (!utc) return; // skip if no data-utc
-
-  const localDate = new Date(utc.trim());
-  if (isNaN(localDate)) return; // skip invalid dates
-
-  el.textContent = formatDate(localDate);
-});
 
 if (!sessionId) {
   alert("No session ID found in URL. Please log in or use a valid link.");
 }
 
-// Scroll to bottom if there's already history
-chatEl.scrollTop = chatEl.scrollHeight;
-
-// Auto-grow input
-inputEl.addEventListener("input", () => {
-  inputEl.style.height = "auto";
-  inputEl.style.height = inputEl.scrollHeight + "px";
-
-  if (inputEl.scrollHeight > 48) {
-    inputContainer.classList.add("expanded");
-  } else {
-    inputContainer.classList.remove("expanded");
-  }
-});
+// setup
+setupAutoGrow(inputEl, inputContainer);
+scrollToBottom();
 
 // Auto-send on Enter (Shift+Enter for newline)
 inputEl.addEventListener("keydown", (e) => {
@@ -57,16 +28,10 @@ inputEl.addEventListener("keydown", (e) => {
   }
 });
 
-// suggestions.forEach((element) => {
-//   element.addEventListener("click", () => {
-//     inputEl.value = element.innerText;
-//     sendMessage();
-//   });
-// });
-
-// Render existing history on page load
+// Render existing messages
 window.addEventListener("load", () => {
   rerenderAllMessages();
+  scrollToBottom(true); // force scroll after render
 });
 
 async function sendMessage() {
@@ -75,10 +40,13 @@ async function sendMessage() {
 
   appendMessage(prompt, "user");
   inputEl.value = "";
+  resizeInput(inputEl); // ✅ now defined
+
   sendBtn.disabled = true;
 
   const assistantEl = appendMessage("", "assistant");
   assistantEl.innerHTML = `<div class="dot-typing"><span></span><span></span><span></span></div>`;
+  scrollToBottom();
 
   try {
     const res = await fetch(`/chat/${sessionId}/stream`, {
@@ -104,54 +72,18 @@ async function sendMessage() {
       const isAtBottom =
         chatEl.scrollTop + chatEl.clientHeight >= chatEl.scrollHeight - 50;
 
-      renderMarkdown(assistantEl, assistantText);
       assistantEl.dataset.raw = assistantText;
+      renderMarkdown(assistantEl, assistantText);
 
-      if (isAtBottom) {
-        chatEl.scrollTop = chatEl.scrollHeight;
-      }
-
+      if (isAtBottom) scrollToBottom();
       await new Promise(requestAnimationFrame);
     }
+
+    assistantEl.dataset.raw = "";
   } catch (err) {
     console.error(err);
     assistantEl.textContent = "I'm sorry. Something went wrong!";
   } finally {
     sendBtn.disabled = false;
   }
-}
-
-function getCurrentDateTime() {
-  const now = new Date();
-  return `${String(now.getDate()).padStart(2, "0")}.${String(
-    now.getMonth() + 1
-  ).padStart(2, "0")}.${now.getFullYear()}, ${String(now.getHours()).padStart(
-    2,
-    "0"
-  )}:${String(now.getMinutes()).padStart(2, "0")}:${String(
-    now.getSeconds()
-  ).padStart(2, "0")}`;
-}
-
-function appendMessage(text, type) {
-  const signature = document.createElement("div");
-  const msg = document.createElement("div");
-  signature.classList.add(`${type}-signature`);
-  msg.classList.add("message", type);
-  signature.textContent = type === "assistant" ? "Assistant" : "You";
-  signature.textContent += ` | ${getCurrentDateTime()}`;
-
-  if (type === "assistant") {
-    msg.dataset.raw = text;
-    renderMarkdown(msg, text);
-  } else {
-    msg.textContent = text;
-  }
-
-  chatEl.appendChild(signature);
-  chatEl.appendChild(msg);
-
-  // Always scroll to bottom on new user message
-  chatEl.scrollTop = chatEl.scrollHeight;
-  return msg;
 }
