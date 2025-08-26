@@ -12,7 +12,6 @@ import { localizeTimestamps } from "./utils.js";
 
 const sendBtn = document.getElementById("send-btn");
 const sessionId = window.location.pathname.split("/").pop();
-const timestamps = document.querySelectorAll(".timestamp");
 
 if (!sessionId) {
   alert("No session ID found in URL. Please log in or use a valid link.");
@@ -71,7 +70,7 @@ async function sendMessage() {
       renderMarkdown(assistantEl, assistantText);
 
       if (isAtBottom) scrollToBottom();
-      await new Promise(requestAnimationFrame);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
     }
 
     assistantEl.dataset.raw = "";
@@ -82,6 +81,9 @@ async function sendMessage() {
     sendBtn.disabled = false;
   }
 }
+
+// sent message on click
+sendBtn.addEventListener("click", sendMessage);
 
 // Auto-send on Enter (Shift+Enter for newline)
 inputEl.addEventListener("keydown", (e) => {
