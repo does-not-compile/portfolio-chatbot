@@ -1,6 +1,8 @@
 const chatEl = document.getElementById("chat");
 const inputEl = document.getElementById("input-text");
+const sessionListEl = document.getElementById("sessionList");
 const inputContainer = document.getElementById("input");
+const currentSessionId = window.location.pathname.split("/").pop();
 
 // Scroll to bottom of Chat element
 export function scrollToBottom(force = false) {
@@ -29,6 +31,45 @@ export function setupAutoGrow(inputEl, inputContainer) {
     } else {
       inputContainer.classList.remove("expanded");
     }
+  });
+}
+
+// fetch sessions and populate ul with class session-list
+export async function fillSessionList() {
+  const res = await fetch(`/sessions`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Server error: ${res.status} - ${text}`);
+  }
+
+  // 1. Parse JSON
+  const data = await res.json();
+
+  // 2. Clear existing list
+  sessionListEl.innerHTML = "";
+
+  // 3. Populate list
+  function shortenId(id) {
+    if (!id) return "";
+    if (id.length <= 8) return id; // if already short
+    return `${id.slice(0, 4)}...${id.slice(-4)}`;
+  }
+
+  data.sessions.forEach((session) => {
+    const li = document.createElement("li");
+    const shortId = shortenId(session.id);
+
+    if (session.id === currentSessionId) {
+      li.innerHTML = `<a class="nav-link active" href="/chat/${session.id}">${session.created_at} | ${shortId}</a>`;
+    } else {
+      li.innerHTML = `<a class="nav-link" href="/chat/${session.id}">${session.created_at} | ${shortId}</a>`;
+    }
+
+    sessionListEl.appendChild(li);
   });
 }
 

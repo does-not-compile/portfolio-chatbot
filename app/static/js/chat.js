@@ -5,6 +5,7 @@ import {
   scrollToBottom,
   setupAutoGrow,
   resizeInput,
+  fillSessionList,
 } from "./ui.js";
 import { appendMessage } from "./messages.js";
 import { renderMarkdown, rerenderAllMessages } from "./renderer.js";
@@ -20,6 +21,7 @@ if (!sessionId) {
 // setup
 setupAutoGrow(inputEl, inputContainer);
 scrollToBottom();
+fillSessionList();
 
 // Render existing messages
 window.addEventListener("load", () => {

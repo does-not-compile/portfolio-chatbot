@@ -12,24 +12,54 @@
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', path='css/chat.css')}} " />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/navbar.css')}} " />
     <link rel="stylesheet" href="{{ url_for('static', path='css/main.css')}} " />
     <link rel="stylesheet" href="{{ url_for('static', path='css/loading.css')}} " />
     <link rel="stylesheet" href="{{ url_for('static', path='css/prism.css')}} " />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js" defer></script>
     <script src="{{ url_for('static', path='js/prism.js')}}" defer></script>
+    <script src="https://kit.fontawesome.com/a051f921ad.js" crossorigin="anonymous"></script>
     <script type="module" src="{{ url_for('static', path='js/chat.js')}}" defer></script>
+    <script type="module" src="{{ url_for('static', path='js/nav.js')}}"></script>
 </head>
 
 <body>
     <div id="chat-container">
+        <nav class="navbar" data-theme="dark">
+            <div class="mobile-menu">
+                <div class="nav-item nav-interactions">
+                    <a class="nav-link" id="newChat" href="{{ url_for('create_session') }}">New Chat</a>
+                    <a class="nav-link" id="logout" href="{{ url_for('logout') }}">Logout</a>
+                </div>
+                <div class="nav-item nav-sessions">
+                    <h1>Your sessions</h1>
+                    <ul id="sessionList" class="session-list"></ul>
+                </div>
+                <div class="nav-item connects" data-theme="dark">
+                    <a href="mailto:sebastian.nagel1@gmx.de" class="fa-solid fa-envelope"></a>
+                    <a href="https://www.linkedin.com/in/sebastiannagel1991/" class="fa-brands fa-linkedin"
+                        target="_blank"></a>
+                    <a href="https://www.xing.com/profile/Sebastian_Nagel098550/web_profiles" class="fa-brands fa-xing"
+                        target="_blank"></a>
+                </div>
+            </div>
+
+            <div class="navbar-container">
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+                <span class="logo">Chatbot | snagel.io</span>
+            </div>
+        </nav>
         <div id="chat">
             <div class="assistant-signature">Assistant | <span class="timestamp" data-utc="{{ now }}"></span>
             </div>
             <div class="message assistant" data-raw="Hello! I’m Sebastian's AI assistant, dedicated to providing you with all the information you need
                 about Sebastian's professional life. 
 
-Whether you’re looking for details about his education, work experience, projects, skills, or how he fits into a team culture, I’m here to help! My aim is to help recruiters, hiring managers, and potential colleagues get a clear picture of Sebastian’s qualifications and character. 
-If you have any specific questions about his CV or projects, feel free to ask!
+Whether you’re looking for details about his education, work experience, projects, skills, or how he fits into a team culture, I’m here to help!
 
 If you have any questions that I can’t answer or if you’d like to connect with Sebastian directly for further discussion, you can reach him via email at sebastian.nagel1@gmx.de or just shoot him a message on [LinkedIn](https://www.linkedin.com/in/sebastiannagel1991/). He’ll be more than happy to chat and provide any additional insights you’re looking for.
 
