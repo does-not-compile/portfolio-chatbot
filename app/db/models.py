@@ -1,6 +1,5 @@
 import enum
-from datetime import timedelta
-from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, Text
+from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, Text, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.orm import relationship
@@ -19,6 +18,7 @@ class User(Base):
     user_id = Column(CHAR(36), primary_key=True)
     created_at = Column(DateTime, default=func.now())
     affiliation = Column(String(100), nullable=True)
+    activated = Column(Boolean, default=False)
 
 
 class ChatSession(Base):
@@ -26,11 +26,6 @@ class ChatSession(Base):
     session_id = Column(CHAR(36), primary_key=True)
     user_id = Column(CHAR(36), ForeignKey("users.user_id"), nullable=False)
     created_at = Column(DateTime, default=func.now())
-    expires_at = Column(
-        DateTime,
-        default=lambda: func.now() + timedelta(seconds=settings.SESSION_TTL_SECONDS),
-    )
-    status = Column(String(16), default="active")  # active, closed, expired
 
     user = relationship("User")
 
