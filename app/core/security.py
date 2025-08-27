@@ -1,3 +1,4 @@
+from fastapi import Request
 import jwt
 from datetime import datetime, timedelta, timezone
 from core.config import settings
@@ -16,3 +17,11 @@ def verify_jwt(token: str):
         raise ValueError("Token expired")
     except jwt.InvalidTokenError:
         raise ValueError("Invalid token")
+
+
+def get_current_user(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return False
+    user_id = verify_jwt(token)
+    return user_id
