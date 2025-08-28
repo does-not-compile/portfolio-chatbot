@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
+from datetime import datetime
 from sqlalchemy.orm import Session
 from db import crud
 from db.session import get_db
@@ -30,7 +30,10 @@ def get_sessions(request: Request, db: Session = Depends(get_db)):
 
     r = {
         "sessions": [
-            {"id": session.session_id, "created_at": str(session.created_at)}
+            {
+                "id": session.session_id,
+                "created_at": f"{session.created_at.isoformat()}Z",
+            }
             for session in sessions
         ]
     }
