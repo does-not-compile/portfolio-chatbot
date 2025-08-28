@@ -154,15 +154,23 @@
         align-items: center;
         justify-content: center;
 
-        ul,
         li {
+            display: flex;
             list-style: none;
-            margin: 0;
-            padding: 0;
 
+            &:hover {
+                .delete {
+                    opacity: 1;
+                }
+            }
 
-            a {
-                font-size: 1rem;
+            .delete {
+                opacity: 0;
+                width: 1.6rem;
+                height: 1.6rem;
+                background-image: url("../img/int/delete.svg");
+                background-size: contain;
+                background-repeat: no-repeat;
             }
         }
 

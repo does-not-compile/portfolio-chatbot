@@ -63,18 +63,43 @@ export async function fillSessionList() {
 
   data.sessions.forEach((session) => {
     const li = document.createElement("li");
+    const a = document.createElement("a");
+    const span = document.createElement("span");
     const shortId = shortenId(session.id);
 
+    a.classList.add("nav-link");
+    a.href = `/chat/${session.id}`;
+    a.innerHTML = `${localizeTimestamp(session.created_at)} | ${shortId}`;
+
+    span.classList.add("delete");
+
+    span.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      try {
+        const res = await fetch(`/sessions/delete/${session.id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Server error: ${res.status} - ${text}`);
+        }
+
+        // Optionally remove the li from DOM after successful delete
+        span.closest("li")?.remove();
+      } catch (err) {
+        console.error("Failed to delete session:", err);
+      }
+    });
+
     if (session.id === currentSessionId) {
-      li.innerHTML = `<a class="nav-link active" href="/chat/${
-        session.id
-      }">${localizeTimestamp(session.created_at)} | ${shortId}</a>`;
-    } else {
-      li.innerHTML = `<a class="nav-link" href="/chat/${
-        session.id
-      }">${localizeTimestamp(session.created_at)} | ${shortId}</a>`;
+      a.classList.add("active");
     }
 
+    li.appendChild(a);
+    li.appendChild(span);
     sessionListEl.appendChild(li);
   });
 }
