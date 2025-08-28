@@ -22,8 +22,10 @@ def activate_user(db: Session, user_id: str):
 
 # --- Sessions ---
 def get_sessions(db: Session, user_id: str):
-    stmt = select(models.ChatSession.session_id, models.ChatSession.created_at).where(
-        models.ChatSession.user_id == user_id
+    stmt = (
+        select(models.ChatSession.session_id, models.ChatSession.created_at)
+        .where(models.ChatSession.user_id == user_id)
+        .order_by(models.ChatSession.created_at.desc())
     )
     result = db.execute(stmt).all()
     return result
