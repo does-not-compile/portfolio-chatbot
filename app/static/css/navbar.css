@@ -55,14 +55,14 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 100dvh;
+  height: 100%;
   width: 100vw;
   background: #0a0f18;
   z-index: 1100;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-evenly;
   padding: 1rem 0 3rem 0;
   font-size: 1rem;
   color: #f5f5f5;
@@ -82,7 +82,7 @@
 }
 .mobile-menu .nav-item {
   margin: 0;
-  width: 40%;
+  width: 60%;
   white-space: nowrap;
 }
 @media (max-width: 900px) {
@@ -98,6 +98,14 @@
   align-items: center;
   height: -moz-fit-content;
   height: fit-content;
+}
+.mobile-menu .nav-sessions {
+  flex: 1;
+  width: 100%;
+  overflow-y: scroll;
+  margin: 0 0 2rem 0;
+  justify-content: center;
+  align-items: center;
 }
 .mobile-menu .nav-link {
   position: relative;
@@ -121,6 +129,12 @@
 }
 .mobile-menu #newChat {
   background-image: url("../img/int/plus.svg");
+}
+.mobile-menu .session-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .mobile-menu .session-list ul,
 .mobile-menu .session-list li {

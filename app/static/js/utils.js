@@ -27,3 +27,10 @@ export function localizeTimestamps() {
     el.textContent = formatDate(localDate, ".", ":");
   });
 }
+
+export function localizeTimestamp(ts) {
+  const localDate = new Date(ts);
+  if (isNaN(localDate)) return;
+
+  return formatDate(localDate, ".", ":");
+}

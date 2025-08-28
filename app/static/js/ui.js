@@ -1,3 +1,5 @@
+import { localizeTimestamp } from "./utils.js";
+
 const chatEl = document.getElementById("chat");
 const inputEl = document.getElementById("input-text");
 const sessionListEl = document.getElementById("sessionList");
@@ -64,9 +66,13 @@ export async function fillSessionList() {
     const shortId = shortenId(session.id);
 
     if (session.id === currentSessionId) {
-      li.innerHTML = `<a class="nav-link active" href="/chat/${session.id}">${session.created_at} | ${shortId}</a>`;
+      li.innerHTML = `<a class="nav-link active" href="/chat/${
+        session.id
+      }">${localizeTimestamp(session.created_at)} | ${shortId}</a>`;
     } else {
-      li.innerHTML = `<a class="nav-link" href="/chat/${session.id}">${session.created_at} | ${shortId}</a>`;
+      li.innerHTML = `<a class="nav-link" href="/chat/${
+        session.id
+      }">${localizeTimestamp(session.created_at)} | ${shortId}</a>`;
     }
 
     sessionListEl.appendChild(li);
