@@ -26,6 +26,7 @@ class ChatSession(Base):
     session_id = Column(CHAR(36), primary_key=True)
     user_id = Column(CHAR(36), ForeignKey("users.user_id"), nullable=False)
     created_at = Column(DateTime, default=func.now())
+    hidden = Column(Boolean, default=False)  # pseudo delete of sessions
 
     user = relationship("User")
 

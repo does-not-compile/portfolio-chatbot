@@ -20,14 +20,14 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 
 @router.get("/{session_id}", response_class=HTMLResponse)
-def chat_page(request: Request, session_id: str, db: Session = Depends(get_db)):
+async def chat_page(request: Request, session_id: str, db: Session = Depends(get_db)):
     user_id = get_current_user(request)
 
     if not user_id:
         raise HTTPException(status_code=403, detail="unauthorized")
 
     session = crud.get_session(db, session_id)
-    if not session or session.user_id != user_id:
+    if not session or session.user_id != user_id or session.hidden:
         raise HTTPException(status_code=403, detail="Invalid session")
 
     history = crud.get_history(db, session_id, limit=1000)
@@ -46,7 +46,7 @@ def chat_page(request: Request, session_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/{session_id}/stream")
-def chat_stream(
+async def chat_stream(
     session_id: str,
     req: PromptRequest,
     db: Session = Depends(get_db),
@@ -55,7 +55,7 @@ def chat_stream(
     user_id = get_current_user(request)
 
     session = crud.get_session(db, session_id)
-    if not session or session.user_id != user_id:
+    if not session or session.user_id != user_id or session.hidden:
         raise HTTPException(status_code=403, detail="Invalid session")
 
     crud.insert_message(db, session_id, user_id, req.prompt, RoleEnum.user)

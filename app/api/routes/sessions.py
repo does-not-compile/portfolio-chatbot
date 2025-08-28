@@ -21,7 +21,7 @@ def get_current_user(request: Request):
 
 
 @router.get("/", response_class=JSONResponse)
-def get_sessions(request: Request, db: Session = Depends(get_db)):
+async def get_sessions(request: Request, db: Session = Depends(get_db)):
     user_id = get_current_user(request)
 
     sessions = crud.get_sessions(db, user_id)
@@ -42,8 +42,18 @@ def get_sessions(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/create")
-def create_session(request: Request, db: Session = Depends(get_db)):
+async def create_session(request: Request, db: Session = Depends(get_db)):
     user_id = get_current_user(request)
     new_session = crud.create_session(db, user_id)
 
     return RedirectResponse(f"/chat/{new_session.session_id}")
+
+
+@router.post("/delete/{session_id}", response_class=JSONResponse)
+async def delete_session(
+    request: Request, session_id: str, db: Session = Depends(get_db)
+):
+    user_id = get_current_user(request)
+    delete_session = crud.hide_session(db, session_id)
+
+    return JSONResponse({"status": "ok", "session_id": delete_session})

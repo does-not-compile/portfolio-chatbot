@@ -21,10 +21,13 @@ def activate_user(db: Session, user_id: str):
 
 
 # --- Sessions ---
-def get_sessions(db: Session, user_id: str):
+def get_sessions(db: Session, user_id: str, show_hidden: bool = False):
     stmt = (
         select(models.ChatSession.session_id, models.ChatSession.created_at)
         .where(models.ChatSession.user_id == user_id)
+        .where(
+            models.ChatSession.hidden == show_hidden
+        )  #  only return non-hidden sessions
         .order_by(models.ChatSession.created_at.desc())
     )
     result = db.execute(stmt).all()
@@ -44,6 +47,7 @@ def get_latest_session_id(db: Session, user_id: str):
             models.ChatSession.session_id == models.Message.session_id,
         )
         .where(models.ChatSession.user_id == user_id)
+        .where(models.ChatSession.hidden == False)
         .order_by(models.Message.created_at.desc())
         .limit(1)
     )
@@ -61,6 +65,19 @@ def create_session(db: Session, user_id: str) -> models.ChatSession:
     db.refresh(new_session)
 
     return new_session
+
+
+def hide_session(db: Session, session_id: str):
+    stmt = (
+        update(models.ChatSession)
+        .where(models.ChatSession.session_id == session_id)
+        .values(hidden=True)
+    )
+
+    db.execute(stmt)
+    db.commit()
+
+    return session_id
 
 
 # --- Messages ---
