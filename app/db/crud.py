@@ -12,12 +12,25 @@ def get_user(db: Session, user_id: str):
     return db.get(models.User, user_id)
 
 
-# --- Sessions ---
-def get_session_ids(db: Session, user_id: str):
-    stmt = select(models.ChatSession.session_id).where(
-        models.ChatSession.user_id == user_id
+def activate_user(db: Session, user_id: str):
+    stmt = (
+        update(models.User).where(models.User.user_id == user_id).values(activated=True)
     )
-    result = db.execute(stmt).scalars().all()
+    db.execute(stmt)
+    db.commit()
+
+
+# --- Sessions ---
+def get_sessions(db: Session, user_id: str, show_hidden: bool = False):
+    stmt = (
+        select(models.ChatSession.session_id, models.ChatSession.created_at)
+        .where(models.ChatSession.user_id == user_id)
+        .where(
+            models.ChatSession.hidden == show_hidden
+        )  #  only return non-hidden sessions
+        .order_by(models.ChatSession.created_at.desc())
+    )
+    result = db.execute(stmt).all()
     return result
 
 
@@ -34,52 +47,17 @@ def get_latest_session_id(db: Session, user_id: str):
             models.ChatSession.session_id == models.Message.session_id,
         )
         .where(models.ChatSession.user_id == user_id)
+        .where(models.ChatSession.hidden == False)
         .order_by(models.Message.created_at.desc())
         .limit(1)
     )
     return db.execute(stmt).scalar()
 
 
-def close_expired_or_excess_sessions(db: Session, user_id: str):
-    # Mark expired
-    now = datetime.now(timezone.utc)
-    db.execute(
-        update(models.ChatSession)
-        .where(
-            models.ChatSession.user_id == user_id, models.ChatSession.expires_at < now
-        )
-        .values(status="expired")
-    )
-    db.commit()
-
-    # Enforce max active
-    active = (
-        db.execute(
-            select(models.ChatSession)
-            .where(
-                models.ChatSession.user_id == user_id,
-                models.ChatSession.status == "active",
-            )
-            .order_by(models.ChatSession.created_at.desc())
-        )
-        .scalars()
-        .all()
-    )
-
-    if len(active) > settings.MAX_ACTIVE_SESSIONS_PER_USER:
-        for s in active[settings.MAX_ACTIVE_SESSIONS_PER_USER :]:
-            s.status = "closed"
-        db.commit()
-
-
 def create_session(db: Session, user_id: str) -> models.ChatSession:
-    close_expired_or_excess_sessions(db, user_id)
     new_session = models.ChatSession(
         session_id=str(uuid.uuid4()),
         user_id=user_id,
-        expires_at=datetime.now(timezone.utc)
-        + timedelta(seconds=settings.SESSION_TTL_SECONDS),
-        status="active",
     )
 
     db.add(new_session)
@@ -87,6 +65,19 @@ def create_session(db: Session, user_id: str) -> models.ChatSession:
     db.refresh(new_session)
 
     return new_session
+
+
+def hide_session(db: Session, session_id: str):
+    stmt = (
+        update(models.ChatSession)
+        .where(models.ChatSession.session_id == session_id)
+        .values(hidden=True)
+    )
+
+    db.execute(stmt)
+    db.commit()
+
+    return session_id
 
 
 # --- Messages ---
