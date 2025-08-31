@@ -19,7 +19,7 @@
 
 <body>
     <div class="col fh fw center" id="login">
-        <form action="/login" method="POST" id="loginForm" class="blurry" novalidate>
+        <form action="/auth/login" method="POST" id="loginForm" class="blurry" novalidate>
             <h1>LOGIN</h1>
             <p>
                 Please paste your User ID
@@ -40,6 +40,9 @@
                 <input id="seg4" maxlength="12" pattern="[0-9a-fA-F]+" autocomplete="off" spellcheck="false"
                     aria-label="user id part 5" class="text-input-userId seg-12">
             </div>
+            {% if error %}
+            <div class="error">{{error}}</div>
+            {% endif %}
             <input type="text" name="userId" id="userId" hidden>
             <div class="row interaction">
                 <button type="submit" class="btn-submit">Let's Chat!</button>
