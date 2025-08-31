@@ -308,6 +308,10 @@ a {
     height: fit-content;
     padding: 3rem;
 
+    @include respond-to("medium") {
+        width: 100vw;
+    }
+
     .error {
         margin: 3rem 0;
         font-size: 1rem;
