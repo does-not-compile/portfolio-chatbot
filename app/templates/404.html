@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://kit.fontawesome.com/a051f921ad.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', path='js/login.js')}}" defer></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/main.css')}} " />
+    <link rel="stylesheet" href="{{ url_for('static', path='css/index.css')}} " />
+</head>
+
+<body>
+    <div class="col fh fw center" id="error">
+        <div class="wrapper section" data-theme="light">
+            <div class="sub-header">This isn't what you were looking for</div>
+            <div class="title">404: Ressource not found</div>
+            <div class="text error  ">
+                {{ msg if msg else "I've looked everywhere, but it's not there!" }}
+            </div>
+            <a href="{{ url_for('login_page') }}">Go back to where it's safe</a>
+        </div>
+    </div>
+</body>
+
+</html>

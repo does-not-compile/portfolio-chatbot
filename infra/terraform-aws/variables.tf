@@ -28,5 +28,5 @@ variable "private_key_path" {
 variable "ami_id" {
   description = "Optional: manually set an AMI ID. Leave empty to auto-select Ubuntu 24.04"
   type        = string
-  default     = ""
+  default     = "ami-02003f9f0fde924ea"
 }

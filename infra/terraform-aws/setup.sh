@@ -30,6 +30,8 @@ for i in {1..12}; do
       && DB_USER=$(aws ssm get-parameter --name '/chatapp/db_user' --query 'Parameter.Value' --output text --region "$REGION") \
       && DB_NAME=$(aws ssm get-parameter --name '/chatapp/db_name' --query 'Parameter.Value' --output text --region "$REGION") \
       && OPENAI_API_KEY=$(aws ssm get-parameter --name '/chatapp/openai_api_key' --with-decryption --query 'Parameter.Value' --output text --region "$REGION") \
+      && JWT_SECRET=$(aws ssm get-parameter --name '/chatapp/jwt_secret' --with-decryption --query 'Parameter.Value' --output text --region "$REGION") \
+      && SESSION_SECRET=$(aws ssm get-parameter --name '/chatapp/session_secret' --with-decryption --query 'Parameter.Value' --output text --region "$REGION") \
       && break
     sleep 5
 done

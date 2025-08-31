@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi import APIRouter, Request, Depends
+from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from db import crud
@@ -21,14 +21,23 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 @router.get("/{session_id}", response_class=HTMLResponse)
 async def chat_page(request: Request, session_id: str, db: Session = Depends(get_db)):
-    user_id = get_current_user(request)
+    user_id = get_current_user(request, db)
 
     if not user_id:
-        raise HTTPException(status_code=403, detail="unauthorized")
+        logger.error("Unauthorized: Token validation failed. Redirecting to login")
+        request.session["flash"] = "No valid login found: Please login again."
+        return RedirectResponse("/", status_code=303)
 
     session = crud.get_session(db, session_id)
     if not session or session.user_id != user_id or session.hidden:
-        raise HTTPException(status_code=403, detail="Invalid session")
+        logger.error("Unauthorized: Missing or invalid session. Redirectign to login")
+        return templates.TemplateResponse(
+            "404.html",
+            {
+                "request": request,
+                "msg": "This session either does not exist, or you do not have the permission to view it.",
+            },
+        )
 
     history = crud.get_history(db, session_id, limit=1000)
     return templates.TemplateResponse(
@@ -52,11 +61,15 @@ async def chat_stream(
     db: Session = Depends(get_db),
     request: Request = None,
 ):
-    user_id = get_current_user(request)
+    user_id = get_current_user(request, db)
+    if not user_id:
+        logger.error("Unauthorized: No user id provided")
+        return templates.TemplateResponse("login.html", {"request": request})
 
     session = crud.get_session(db, session_id)
     if not session or session.user_id != user_id or session.hidden:
-        raise HTTPException(status_code=403, detail="Invalid session")
+        logger.error("Unauthorized: Missing or invalid session")
+        return templates.TemplateResponse("login.html", {"request": request})
 
     crud.insert_message(db, session_id, user_id, req.prompt, RoleEnum.user)
 
