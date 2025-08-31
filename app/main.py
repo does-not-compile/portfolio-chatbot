@@ -15,6 +15,7 @@ from api.routes.chat import router as chat_router
 from api.routes.sessions import router as session_router
 from pathlib import Path
 from sqlalchemy.orm import Session
+from starlette.middleware.sessions import SessionMiddleware
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -30,6 +31,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET)
+
 if settings.ENV != "DEV":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 
@@ -44,9 +47,15 @@ app.include_router(session_router)
 
 @app.get("/", response_class=HTMLResponse)
 async def login_page(request: Request, db: Session = Depends(get_db)):
-    # check if user is already logged in
-    user_id = get_current_user(request)
+    # check if this was a redirect bc of an error
+    error = request.session.pop("flash", None)
+    if error:
+        return templates.TemplateResponse(
+            "login.html", {"request": request, "error": error}
+        )
 
+    # check if user is already logged in
+    user_id = get_current_user(request, db)
     if user_id:
         # check if latest session
         session_id = crud.get_latest_session_id(db, user_id)
