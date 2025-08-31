@@ -287,6 +287,11 @@ a {
   height: fit-content;
   padding: 3rem;
 }
+@media (max-width: 900px) {
+  .wrapper {
+    width: 100vw;
+  }
+}
 .wrapper .error {
   margin: 3rem 0;
   font-size: 1rem;
