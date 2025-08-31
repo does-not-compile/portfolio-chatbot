@@ -16,13 +16,10 @@ class Settings(BaseModel):
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
     # JWT secret
-    JWT_SECRET: str = os.getenv("JWT_SECRET", "change-me")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "change_me")
 
-    # Sessions per user
-    MAX_ACTIVE_SESSIONS_PER_USER: int = int(
-        os.getenv("MAX_ACTIVE_SESSIONS_PER_USER", "5")
-    )
-    SESSION_TTL_SECONDS: int = int(os.getenv("SESSION_TTL_SECONDS", "604800"))  # 7 days
+    # SESSION middleware secret
+    SESSION_SECRET: str = os.getenv("SESSION_SECRET", "change_me")
 
     # CORS / Hosts
     CORS_ALLOW_ORIGINS: List[str] = ["*"]
