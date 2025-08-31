@@ -1,18 +1,23 @@
-from fastapi import APIRouter, Form, Depends, HTTPException, Response
+from fastapi import APIRouter, Form, Depends, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from db.session import get_db
 from db import crud
 from core.security import create_jwt
+from core.logger import logger
 
-router = APIRouter()
+router = APIRouter(prefix="/auth")
 
 
 @router.post("/login")
-async def login(userId: str = Form(...), db: Session = Depends(get_db)):
+async def login(
+    request: Request, userId: str = Form(...), db: Session = Depends(get_db)
+):
     user = crud.get_user(db, userId)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        logger.error(f"Unauthorized: User '{userId}' not found.")
+        request.session["flash"] = "User not found."
+        return RedirectResponse("/", status_code=303)
 
     # Create JWT cookie
     token = create_jwt(user.user_id)
